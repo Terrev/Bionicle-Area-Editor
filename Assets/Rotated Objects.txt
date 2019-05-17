@@ -1,0 +1,25 @@
+lev1\atrm	hot0	0				0				-24.5			    z
+lev1\cave	dg05	0				89				0				  y  
+lev1\cave	dg10	0				170				0				  y  
+lev1\cave	dg15	0				95.5			0				  y  
+lev1\cave	dg20	0				138.5			0				  y  
+lev1\clf2	hot1	0				30				0				  y  
+lev1\clf2	hot2	0				-18				0				  y  
+lev1\clf2	hot4	17.5			0				0				x    
+lev1\hk01	hot7	0				57.5			0				  y  
+lev1\l1a1	hot2	0				-12				0				  y  
+lev1\l1a7	hot1	1.86385			68.1435			-8.80644		x y z	// only real "problem", swapping x and z achieves correct visual result
+lev1\shrn	mmdr	0				-4				0				  y  
+lev2\shrn	watr	0				13.5			0				  y  
+lev3\boss	lbld	0				-90				90				  y z	// small boulder, scripting controlled for boss fight
+lev4\maz1	main	2.10734E-08		2.72538E-08		-1.76563E-15	x y z	// almost zero
+lev4\maz2	swrd	0.707106		0.707107		-1.0059E-06		x y z	// sword pickup, hardly rotated at all to begin with, rotates in-game
+lev4\visn	mskv	0				133				0				  y  
+lev5\le04	pfm1	0				69				0				  y  
+lev5\vllg	dsc5	0				109.5			0				  y  
+lev6\ta03	gs17	0				-75.5			0				  y  
+lev7\kpka	tg05	0				-42				0				  y  
+lev7\kpka	tg05	0				130.5			0				  y  
+lev7\kpka	tg05	0				141.5			0				  y  
+lev7\onua	hk02	0				16				0				  y  
+lev7\onua	hk03	0				9				0				  y  
