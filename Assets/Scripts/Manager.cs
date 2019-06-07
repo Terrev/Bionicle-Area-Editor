@@ -25,7 +25,7 @@ public class Manager : MonoBehaviour
 	public void LoadObjSlb()
 	{
 		// PREPARE FOR FILE READING
-		string path = Application.dataPath + "/Resources/" + gameVersion + "/" + levelName + "/" + areaName + "/" + areaName + "_OBJ.slb";
+		string path = Application.dataPath + "/Resources/" + gameVersion + "/levels/" + levelName + "/" + areaName + "/" + areaName + "_OBJ.slb";
 		FileStream fileStream = new FileStream(path, FileMode.Open);
 		BinaryReader binaryReader = new BinaryReader(fileStream);
 		
@@ -72,7 +72,7 @@ public class Manager : MonoBehaviour
 			UInt32 flags = binaryReader.ReadUInt32();
 			
 			// INSTANTIATE IN SCENE
-			GameObject newGameObject = Instantiate(Resources.Load(gameVersion + "/" + levelName + "/" + areaName + "/" + identifier, typeof(GameObject)), location, Quaternion.Euler(orientation), slbParent.transform) as GameObject;
+			GameObject newGameObject = Instantiate(Resources.Load(gameVersion + "/levels/" + levelName + "/" + areaName + "/" + identifier, typeof(GameObject)), location, Quaternion.Euler(orientation), slbParent.transform) as GameObject;
 			newGameObject.name = identifier;
 			// BIONICLEOBJECT COMPONENT FOR EXTRA DATA
 			BionicleObject bionicleObject = newGameObject.AddComponent<BionicleObject>() as BionicleObject;
@@ -222,7 +222,7 @@ public class Manager : MonoBehaviour
 		
 		if (overwriteSlbInResources)
 		{
-			string path2 = Application.dataPath + "/Resources/" + gameVersion + "/" + levelName + "/" + areaName + "/" + areaName + "_OBJ.slb";
+			string path2 = Application.dataPath + "/Resources/" + gameVersion + "/levels/" + levelName + "/" + areaName + "/" + areaName + "_OBJ.slb";
 			File.Copy(path, path2, true);
 			Debug.Log("Copied to " + path2);
 		}
@@ -271,7 +271,7 @@ public class Manager : MonoBehaviour
 	public void LoadPosSlb()
 	{
 		// PREPARE FOR FILE READING
-		string path = Application.dataPath + "/Resources/" + gameVersion + "/" + levelName + "/" + areaName + "/" + areaName + "_POS.slb";
+		string path = Application.dataPath + "/Resources/" + gameVersion + "/levels/" + levelName + "/" + areaName + "/" + areaName + "_POS.slb";
 		FileStream fileStream = new FileStream(path, FileMode.Open);
 		BinaryReader binaryReader = new BinaryReader(fileStream);
 		
@@ -382,7 +382,7 @@ public class Manager : MonoBehaviour
 		
 		if (overwriteSlbInResources)
 		{
-			string path2 = Application.dataPath + "/Resources/" + gameVersion + "/" + levelName + "/" + areaName + "/" + areaName + "_POS.slb";
+			string path2 = Application.dataPath + "/Resources/" + gameVersion + "/levels/" + levelName + "/" + areaName + "/" + areaName + "_POS.slb";
 			File.Copy(path, path2, true);
 			Debug.Log("Copied to " + path2);
 		}
@@ -399,7 +399,7 @@ public class Manager : MonoBehaviour
 	public void LoadCharSlb()
 	{
 		// PREPARE FOR FILE READING
-		string path = Application.dataPath + "/Resources/" + gameVersion + "/" + levelName + "/" + areaName + "/" + areaName + "_CHAR.slb";
+		string path = Application.dataPath + "/Resources/" + gameVersion + "/levels/" + levelName + "/" + areaName + "/" + areaName + "_CHAR.slb";
 		FileStream fileStream = new FileStream(path, FileMode.Open);
 		BinaryReader binaryReader = new BinaryReader(fileStream);
 		
@@ -508,8 +508,19 @@ public class Manager : MonoBehaviour
 			
 			
 			// PUT MARKER IN SCENE
-			GameObject newGameObject = Instantiate(characterMarker, position, Quaternion.identity, slbParent.transform);
-			newGameObject.name = identifier;
+			GameObject newGameObject;
+			GameObject character = (GameObject)Resources.Load(gameVersion + "/characters/" + identifier + "/" + identifier, typeof(GameObject));
+			if (character == null)
+			{
+				Debug.LogWarning("Could not load character model for " + identifier);
+				newGameObject = Instantiate(characterMarker, position, Quaternion.identity, slbParent.transform);
+				newGameObject.name = identifier;
+			}
+			else
+			{
+				newGameObject = Instantiate(character, position, Quaternion.identity, slbParent.transform) as GameObject;
+				newGameObject.name = identifier;
+			}
 			// BIONICLECHARACTER COMPONENT FOR EXTRA DATA
 			BionicleCharacter bionicleCharacter = newGameObject.AddComponent<BionicleCharacter>() as BionicleCharacter;
 			bionicleCharacter.unusedOrientation = orientation;
@@ -635,7 +646,7 @@ public class Manager : MonoBehaviour
 		
 		if (overwriteSlbInResources)
 		{
-			string path2 = Application.dataPath + "/Resources/" + gameVersion + "/" + levelName + "/" + areaName + "/" + areaName + "_CHAR.slb";
+			string path2 = Application.dataPath + "/Resources/" + gameVersion + "/levels/" + levelName + "/" + areaName + "/" + areaName + "_CHAR.slb";
 			File.Copy(path, path2, true);
 			Debug.Log("Copied to " + path2);
 		}

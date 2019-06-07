@@ -4,9 +4,12 @@
 [Bb]uild/
 [Bb]uilds/
 Assets/AssetStoreTools*
-Assets/Resources/alpha/lev*
-Assets/Resources/beta/lev*
-Assets/Resources/rebuilt/lev*
+Assets/Resources/alpha/characters
+Assets/Resources/alpha/levels
+Assets/Resources/beta/characters
+Assets/Resources/beta/levels
+Assets/Resources/rebuilt/characters
+Assets/Resources/rebuilt/levels
 
 # Visual Studio cache directory
 .vs/
