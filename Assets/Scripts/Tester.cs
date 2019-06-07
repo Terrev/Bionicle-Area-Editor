@@ -10,7 +10,7 @@ public class Tester : MonoBehaviour
 	
 	void Awake()
 	{
-		PosTest();
+		CharTest();
 	}
 	
 	void ObjTest()
@@ -19,9 +19,9 @@ public class Tester : MonoBehaviour
 		
 		string[] paths = Directory.GetFiles(Application.dataPath + "/Resources", "*_OBJ.slb", SearchOption.AllDirectories);
 		/*
-		for (int i = 0; i < files.Length; i++)
+		for (int i = 0; i < paths.Length; i++)
 		{
-			Debug.Log(files[i]);
+			Debug.Log(paths[i]);
 		}
 		*/
 		
@@ -203,4 +203,92 @@ public class Tester : MonoBehaviour
 		
 		File.WriteAllLines(Application.dataPath + "/Output.txt", stringsToWrite.ToArray());
 	}
+	
+	void CharTest()
+	{
+		List<string> stringsToWrite = new List<string>();
+		
+		string[] paths = Directory.GetFiles(Application.dataPath + "/Resources", "*_CHAR.slb", SearchOption.AllDirectories);
+		/*
+		for (int i = 0; i < paths.Length; i++)
+		{
+			Debug.Log(paths[i]);
+		}
+		*/
+		
+		foreach (string path in paths)
+		{
+			string fileName = Path.GetFileName(path);
+			if (fileName.StartsWith("cin"))
+			{
+				continue;
+			}
+			
+			FileStream fileStream = new FileStream(path, FileMode.Open);
+			BinaryReader binaryReader = new BinaryReader(fileStream);
+			
+			// SKIP UNNEEDED/UNUSED STUFF AT START OF FILE
+			binaryReader.BaseStream.Position = 4;
+			
+			// READ BASIC INFO
+			UInt32 entryCount = binaryReader.ReadUInt32();
+			UInt32 tableOffset = binaryReader.ReadUInt32();
+			
+			// GO TO BEGINNING OF TABLE
+			fileStream.Seek(tableOffset, SeekOrigin.Begin);
+			
+			// LOOP THROUGH ENTRIES
+			for (int i = 0; i < entryCount; i++)
+			{
+				// IDENTIFIER
+				// read the characters then turn them into a string we can use more easily
+				char[] charArray = new char[4];
+				charArray = binaryReader.ReadChars(4);
+				Array.Reverse(charArray);
+				string identifier = new string(charArray);
+				
+				// POSITION
+				// some slb templates say position, others say location, doesn't matter but SHRUG
+				Vector3 position = new Vector3(-binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
+				
+				// ORIENTATION
+				// apparently unread/unused for characters
+				Vector3 orientation = new Vector3(binaryReader.ReadSingle(), -binaryReader.ReadSingle(), -binaryReader.ReadSingle());
+				
+				// UNKNOWN
+				// also unread
+				float unknown = binaryReader.ReadSingle();
+				
+				// TRIGGER BOX TABLE
+				UInt32 triggerBoxEntryCountUnused = binaryReader.ReadUInt32();
+				UInt32 triggerBoxEntryCount = binaryReader.ReadUInt32();
+				UInt32 triggerBoxOffset = binaryReader.ReadUInt32();
+				if (triggerBoxEntryCountUnused != 0 || triggerBoxEntryCount != 0)
+				{
+					string blah = path + " " + triggerBoxEntryCountUnused + " " + triggerBoxEntryCount + " TRIGGER BOX";
+					Debug.Log(blah);
+					stringsToWrite.Add(blah);
+				}
+				
+				// SPLINE PATHS TABLE
+				UInt32 splinePathEntryCount = binaryReader.ReadUInt32();
+				UInt32 splinePathOffset = binaryReader.ReadUInt32();
+				if (splinePathEntryCount != 0)
+				{
+					string blah = path + " " + splinePathEntryCount + " SPLINE";
+					Debug.Log(blah);
+					stringsToWrite.Add(blah);
+				}
+			}
+			// SHRUG
+			// some stackoverflow post said closing the reader SHOULD close the stream but I don't trust "should" enough lol
+			binaryReader.Close();
+			fileStream.Close();
+			Resources.UnloadUnusedAssets();
+			System.GC.Collect();
+		}
+		
+		File.WriteAllLines(Application.dataPath + "/Output.txt", stringsToWrite.ToArray());
+	}
+	
 }

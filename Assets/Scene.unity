@@ -240,9 +240,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b02bb4f4d8f506e4cbd83233757821e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  gameVersion: beta
   levelName: lev1
   areaName: atrm
+  overwriteSlbInResources: 1
   positionMarker: {fileID: 6408088183004470937, guid: 23786c7363bdb604ea294df3dd72dc3f,
+    type: 3}
+  characterMarker: {fileID: 4835586487593181946, guid: ff949345377f90948b6319cbfcbd8ed5,
     type: 3}
 --- !u!4 &2100854237
 Transform:
