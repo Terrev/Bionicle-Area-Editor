@@ -244,10 +244,6 @@ MonoBehaviour:
   levelName: lev1
   areaName: atrm
   overwriteSlbInResources: 1
-  positionMarker: {fileID: 6408088183004470937, guid: 23786c7363bdb604ea294df3dd72dc3f,
-    type: 3}
-  characterMarker: {fileID: 4835586487593181946, guid: ff949345377f90948b6319cbfcbd8ed5,
-    type: 3}
 --- !u!4 &2100854237
 Transform:
   m_ObjectHideFlags: 0

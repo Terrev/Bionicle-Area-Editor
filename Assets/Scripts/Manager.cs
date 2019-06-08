@@ -11,11 +11,7 @@ public class Manager : MonoBehaviour
 	public string gameVersion = "beta";
 	public string levelName = "lev1";
 	public string areaName = "atrm";
-	
-	public bool overwriteSlbInResources = false;
-	
-	public GameObject positionMarker;
-	public GameObject characterMarker;
+	public bool overwriteSlbInResources = true;
 	
 	
 	
@@ -72,8 +68,19 @@ public class Manager : MonoBehaviour
 			UInt32 flags = binaryReader.ReadUInt32();
 			
 			// INSTANTIATE IN SCENE
-			GameObject newGameObject = Instantiate(Resources.Load(gameVersion + "/levels/" + levelName + "/" + areaName + "/" + identifier, typeof(GameObject)), location, Quaternion.Euler(orientation), slbParent.transform) as GameObject;
-			newGameObject.name = identifier;
+			GameObject newGameObject;
+			GameObject obj = (GameObject)Resources.Load(gameVersion + "/levels/" + levelName + "/" + areaName + "/" + identifier, typeof(GameObject));
+			if (obj == null)
+			{
+				Debug.LogWarning("Could not load model for " + identifier + ", please make sure the .x is converted");
+				newGameObject = Instantiate(Resources.Load("_Editor/Object Marker", typeof(GameObject)), location, Quaternion.Euler(orientation), slbParent.transform) as GameObject;
+				newGameObject.name = identifier;
+			}
+			else
+			{
+				newGameObject = Instantiate(obj, location, Quaternion.Euler(orientation), slbParent.transform) as GameObject;
+				newGameObject.name = identifier;
+			}
 			// BIONICLEOBJECT COMPONENT FOR EXTRA DATA
 			BionicleObject bionicleObject = newGameObject.AddComponent<BionicleObject>() as BionicleObject;
 			bionicleObject.unknown = unknown;
@@ -81,14 +88,16 @@ public class Manager : MonoBehaviour
 			// COLLISION POINT GAMEOBJECTS
 			if (collisionPoint1 != Vector3.zero)
 			{
-				GameObject blah = new GameObject("Collision Point 1");
+				GameObject blah = Instantiate(Resources.Load("_Editor/Collision Point", typeof(GameObject))) as GameObject;
+				blah.name = "Collision Point 1";
 				blah.transform.parent = newGameObject.transform;
 				blah.transform.localPosition = collisionPoint1;
 				blah.transform.localRotation = Quaternion.identity;
 			}
 			if (collisionPoint2 != Vector3.zero)
 			{
-				GameObject blah = new GameObject("Collision Point 2");
+				GameObject blah = Instantiate(Resources.Load("_Editor/Collision Point", typeof(GameObject))) as GameObject;
+				blah.name = "Collision Point 2";
 				blah.transform.parent = newGameObject.transform;
 				blah.transform.localPosition = collisionPoint2;
 				blah.transform.localRotation = Quaternion.identity;
@@ -306,7 +315,8 @@ public class Manager : MonoBehaviour
 			UInt32 flags = binaryReader.ReadUInt32();
 			
 			// PUT MARKER IN SCENE
-			GameObject newGameObject = Instantiate(positionMarker, position, Quaternion.identity, slbParent.transform);
+			GameObject newGameObject = Instantiate(Resources.Load("_Editor/Position Markers/Position Marker", typeof(GameObject)), position, Quaternion.identity, slbParent.transform) as GameObject;
+			
 			newGameObject.name = identifier + " " + flags;
 		}
 		// SHRUUUUG
@@ -507,13 +517,13 @@ public class Manager : MonoBehaviour
 			*/
 			
 			
-			// PUT MARKER IN SCENE
+			// PUT CHARACTER/MARKER IN SCENE
 			GameObject newGameObject;
 			GameObject character = (GameObject)Resources.Load(gameVersion + "/characters/" + identifier + "/" + identifier, typeof(GameObject));
 			if (character == null)
 			{
 				Debug.LogWarning("Could not load character model for " + identifier);
-				newGameObject = Instantiate(characterMarker, position, Quaternion.identity, slbParent.transform);
+				newGameObject = Instantiate(Resources.Load("_Editor/Character Marker", typeof(GameObject)), position, Quaternion.identity, slbParent.transform) as GameObject;
 				newGameObject.name = identifier;
 			}
 			else
