@@ -13,9 +13,25 @@ public static class HierarchyMonitor
 	{
 		foreach (GameObject blah in Object.FindObjectsOfType(typeof(GameObject)))
 		{
+			if (blah.name.Contains("_OBJ.slb"))
+			{
+				UpdateCollisionBoxes(blah);
+			}
 			if (blah.name.Contains("_POS.slb"))
 			{
 				UpdatePositionVisuals(blah);
+			}
+		}
+	}
+	
+	static void UpdateCollisionBoxes(GameObject parent)
+	{
+		foreach (Transform entry in parent.transform)
+		{
+			BionicleObject bionicleObject = entry.GetComponent<BionicleObject>();
+			if (bionicleObject != null)
+			{
+				bionicleObject.CheckForCollisionPoints();
 			}
 		}
 	}

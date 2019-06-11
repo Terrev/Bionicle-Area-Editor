@@ -6,6 +6,8 @@ using System;
 using System.IO;
 using System.Text;
 
+// I WOULD LIKE TO THANK MY CTRL, C, AND V KEYS FOR THEIR HARD WORK AND DEDICATION TO THIS PROJECT
+
 public class Manager : MonoBehaviour
 {
 	public string gameVersion = "beta";
@@ -86,21 +88,28 @@ public class Manager : MonoBehaviour
 			bionicleObject.unknown = unknown;
 			bionicleObject.flags = (int)flags;
 			// COLLISION POINT GAMEOBJECTS
-			if (collisionPoint1 != Vector3.zero)
+			if (collisionPoint1 != Vector3.zero || collisionPoint2 != Vector3.zero)
 			{
+				// PARENT FOR DUMB ROTATION HACK
+				GameObject collisionPointParent = new GameObject("Collision Points");
+				collisionPointParent.AddComponent<CollisionPointHack>();
+				collisionPointParent.transform.parent = newGameObject.transform;
+				collisionPointParent.transform.localPosition = Vector3.zero;
+				collisionPointParent.transform.localRotation = Quaternion.identity;
+				
+				// POINT 1
 				GameObject blah = Instantiate(Resources.Load("_Editor/Collision Point", typeof(GameObject))) as GameObject;
 				blah.name = "Collision Point 1";
-				blah.transform.parent = newGameObject.transform;
+				blah.transform.parent = collisionPointParent.transform;
 				blah.transform.localPosition = collisionPoint1;
 				blah.transform.localRotation = Quaternion.identity;
-			}
-			if (collisionPoint2 != Vector3.zero)
-			{
-				GameObject blah = Instantiate(Resources.Load("_Editor/Collision Point", typeof(GameObject))) as GameObject;
-				blah.name = "Collision Point 2";
-				blah.transform.parent = newGameObject.transform;
-				blah.transform.localPosition = collisionPoint2;
-				blah.transform.localRotation = Quaternion.identity;
+				
+				// POINT 2
+				GameObject blah2 = Instantiate(Resources.Load("_Editor/Collision Point", typeof(GameObject))) as GameObject;
+				blah2.name = "Collision Point 2";
+				blah2.transform.parent = collisionPointParent.transform;
+				blah2.transform.localPosition = collisionPoint2;
+				blah2.transform.localRotation = Quaternion.identity;
 			}
 		}
 		// SHRUG
@@ -179,7 +188,7 @@ public class Manager : MonoBehaviour
 			binaryWriter.Write(bionicleObjects[i].unknown);
 			
 			// COLLISION POINT 1
-			Transform transform1 = entries[i].transform.Find("Collision Point 1");
+			Transform transform1 = entries[i].transform.Find("Collision Points/Collision Point 1");
 			if (transform1 == null)
 			{
 				binaryWriter.Write(0.0f);
@@ -194,7 +203,7 @@ public class Manager : MonoBehaviour
 			}
 			
 			// COLLISION POINT 2
-			Transform transform2 = entries[i].transform.Find("Collision Point 2");
+			Transform transform2 = entries[i].transform.Find("Collision Points/Collision Point 2");
 			if (transform2 == null)
 			{
 				binaryWriter.Write(0.0f);
@@ -662,7 +671,332 @@ public class Manager : MonoBehaviour
 		}
 	}
 	
+	#endregion
+	///////////////////////////////////////////////////////////////////
+	
+	
+	
+	///////////////////////////////////////////////////////////////////
+	#region TRIGGER
+	
+	public void LoadTriggerSlb()
+	{
+		// PREPARE FOR FILE READING
+		string path = Application.dataPath + "/Resources/" + gameVersion + "/levels/" + levelName + "/" + areaName + "/" + areaName + "_TRIGGER.slb";
+		FileStream fileStream = new FileStream(path, FileMode.Open);
+		BinaryReader binaryReader = new BinaryReader(fileStream);
+		
+		// MAKE SLB PARENT GAMEOBJECT
+		// doing this after opening the file so we don't just get an empty gameobject if we entered an invalid name or something
+		GameObject slbParent = new GameObject(areaName + "_TRIGGER.slb");
+		GameObject boxesParent = new GameObject("Boxes");
+		GameObject planesParent = new GameObject("Planes");
+		boxesParent.transform.parent = slbParent.transform;
+		planesParent.transform.parent = slbParent.transform;
+		
+		// READ BASIC INFO
+		UInt32 boxEntryCountUnused = binaryReader.ReadUInt32();
+		UInt32 boxEntryCount = binaryReader.ReadUInt32();
+		UInt32 boxTableOffset = binaryReader.ReadUInt32();
+		
+		UInt32 planeEntryCountUnused = binaryReader.ReadUInt32();
+		UInt32 planeEntryCount = binaryReader.ReadUInt32();
+		UInt32 planeTableOffset = binaryReader.ReadUInt32();
+		
+		// BOX TABLE FIRST, GO TO START OF IT
+		fileStream.Seek(boxTableOffset, SeekOrigin.Begin);
+		
+		// LOOP THROUGH BOX ENTRIES
+		for (int i = 0; i < boxEntryCount; i++)
+		{
+			// IDENTIFIER
+			// read the characters then turn them into a string we can use more easily
+			char[] charArray = new char[4];
+			charArray = binaryReader.ReadChars(4);
+			Array.Reverse(charArray);
+			string identifier = new string(charArray);
+			
+			// POINT 1
+			Vector3 point1 = new Vector3(-binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
+			
+			// POINT 2
+			Vector3 point2 = new Vector3(-binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
+			
+			// INSTANTIATE IN SCENE
+			GameObject newGameObject = new GameObject(identifier);
+			newGameObject.transform.parent = boxesParent.transform;
+			BoxTrigger boxTrigger = newGameObject.AddComponent<BoxTrigger>() as BoxTrigger;
+			
+			GameObject blah1 = Instantiate(Resources.Load("_Editor/Box Trigger Corner", typeof(GameObject))) as GameObject;
+			blah1.name = "Point 1";
+			blah1.transform.parent = newGameObject.transform;
+			blah1.transform.localPosition = point1;
+			blah1.transform.localRotation = Quaternion.identity;
+			
+			GameObject blah2 = Instantiate(Resources.Load("_Editor/Box Trigger Corner", typeof(GameObject))) as GameObject;
+			blah2.name = "Point 2";
+			blah2.transform.parent = newGameObject.transform;
+			blah2.transform.localPosition = point2;
+			blah2.transform.localRotation = Quaternion.identity;
+			
+			/*
+			GameObject boxVisual = Instantiate(Resources.Load("_Editor/Box Trigger Visual", typeof(GameObject))) as GameObject;
+			boxVisual.name = "Visual";
+			boxVisual.transform.parent = newGameObject.transform;
+			boxVisual.transform.localScale = new Vector3(Mathf.Abs(point1.x - point2.x), Mathf.Abs(point1.y - point2.y), Mathf.Abs(point1.z - point2.z));
+			boxVisual.transform.localPosition = new Vector3((point1.x + point2.x) / 2.0f, (point1.y + point2.y) / 2.0f, (point1.z + point2.z) / 2.0f);
+			*/
+		}
+		
+		// PLANE TABLE TIME
+		fileStream.Seek(planeTableOffset, SeekOrigin.Begin);
+		
+		// LOOP THROUGH PLANE ENTRIES
+		for (int i = 0; i < planeEntryCount; i++)
+		{
+			// IDENTIFIER
+			// read the characters then turn them into a string we can use more easily
+			char[] charArray = new char[4];
+			charArray = binaryReader.ReadChars(4);
+			Array.Reverse(charArray);
+			string identifier = new string(charArray);
+			
+			// POINTS
+			Vector3 point1 = new Vector3(-binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
+			Vector3 point2 = new Vector3(-binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
+			Vector3 point3 = new Vector3(-binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
+			Vector3 point4 = new Vector3(-binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
+			
+			// VECTOR THING?
+			Vector3 planeNormal = new Vector3(-binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
+			
+			// AREA, START, LOOK
+			char[] charArray2 = new char[4];
+			charArray2 = binaryReader.ReadChars(4);
+			Array.Reverse(charArray2);
+			string area = new string(charArray2);
+			
+			char[] charArray3 = new char[4];
+			charArray3 = binaryReader.ReadChars(4);
+			Array.Reverse(charArray3);
+			string startPoint = new string(charArray3);
+			
+			char[] charArray4 = new char[4];
+			charArray4 = binaryReader.ReadChars(4);
+			Array.Reverse(charArray4);
+			string lookPoint = new string(charArray4);
+			
+			// INSTANTIATE IN SCENE
+			GameObject newGameObject = new GameObject(identifier);
+			newGameObject.transform.parent = planesParent.transform;
+			PlaneTrigger planeTrigger = newGameObject.AddComponent<PlaneTrigger>() as PlaneTrigger;
+			planeTrigger.area = area;
+			planeTrigger.startPoint = startPoint;
+			planeTrigger.lookPoint = lookPoint;
+			planeTrigger.planeNormal = planeNormal;
+			
+			// MOAR COPYPASTE
+			GameObject blah1 = Instantiate(Resources.Load("_Editor/Plane Trigger Corner", typeof(GameObject))) as GameObject;
+			blah1.name = "Point 1";
+			blah1.transform.parent = newGameObject.transform;
+			blah1.transform.localPosition = point1;
+			blah1.transform.localRotation = Quaternion.identity;
+			
+			GameObject blah2 = Instantiate(Resources.Load("_Editor/Plane Trigger Corner", typeof(GameObject))) as GameObject;
+			blah2.name = "Point 2";
+			blah2.transform.parent = newGameObject.transform;
+			blah2.transform.localPosition = point2;
+			blah2.transform.localRotation = Quaternion.identity;
+			
+			GameObject blah3 = Instantiate(Resources.Load("_Editor/Plane Trigger Corner", typeof(GameObject))) as GameObject;
+			blah3.name = "Point 3";
+			blah3.transform.parent = newGameObject.transform;
+			blah3.transform.localPosition = point3;
+			blah3.transform.localRotation = Quaternion.identity;
+			
+			GameObject blah4 = Instantiate(Resources.Load("_Editor/Plane Trigger Corner", typeof(GameObject))) as GameObject;
+			blah4.name = "Point 4";
+			blah4.transform.parent = newGameObject.transform;
+			blah4.transform.localPosition = point4;
+			blah4.transform.localRotation = Quaternion.identity;
+		}
+		
+		// SHRUG
+		// some stackoverflow post said closing the reader SHOULD close the stream but I don't trust "should" enough lol
+		binaryReader.Close();
+		fileStream.Close();
+		Debug.Log("Loaded " + path);
+	}
+	
+	public void SaveTriggerSlb()
+	{
+		// LOOK OVER SCENE AND ERROR CHECK
+		// get slb parent
+		GameObject parentGameObject = GameObject.Find("/" + areaName + "_TRIGGER.slb");
+		if (parentGameObject == null)
+		{
+			Debug.LogError("Couldn't find GameObject named " + areaName + "_TRIGGER.slb");
+			return;
+		}
+		
+		// grab the slb's gameobjects/entries
+		Transform boxesParent = parentGameObject.transform.Find("Boxes");
+		Transform planesParent = parentGameObject.transform.Find("Planes");
+		List<GameObject> boxEntries = new List<GameObject>();
+		List<GameObject> planeEntries = new List<GameObject>();
+		List<BoxTrigger> boxTriggers = new List<BoxTrigger>();
+		List<PlaneTrigger> planeTriggers = new List<PlaneTrigger>();
+		if (boxesParent == null)
+		{
+			Debug.LogError("Couldn't find Boxes GameObject");
+			return;
+		}
+		if (planesParent == null)
+		{
+			Debug.LogError("Couldn't find Planes GameObject");
+			return;
+		}
+		foreach (Transform box in boxesParent)
+		{
+			boxEntries.Add(box.gameObject);
+			BoxTrigger boxTrigger = box.GetComponent<BoxTrigger>();
+			if (boxTrigger == null)
+			{
+				Debug.LogError("No BoxTrigger component on " + box.name);
+				return;
+			}
+			if (!boxTrigger.CheckPoints())
+			{
+				Debug.LogError("One or more missing points on " + box.name);
+				return;
+			}
+			boxTrigger.ApplyTransformation();
+			boxTriggers.Add(boxTrigger);
+		}
+		foreach (Transform plane in planesParent)
+		{
+			planeEntries.Add(plane.gameObject);
+			PlaneTrigger planeTrigger = plane.GetComponent<PlaneTrigger>();
+			if (planeTrigger == null)
+			{
+				Debug.LogError("No PlaneTrigger component on " + plane.name);
+				return;
+			}
+			if (!planeTrigger.CheckPoints())
+			{
+				Debug.LogError("One or more missing points on " + plane.name);
+				return;
+			}
+			planeTrigger.ApplyTransformation();
+			planeTriggers.Add(planeTrigger);
+		}
+		
+		// OK NOW FOR ACTUAL FILE STUFF
+		// GET FILE PATH
+		string path = EditorUtility.SaveFilePanel("Save SLB", "", areaName + "_TRIGGER___WIP.slb", "slb");
+		if (path.Length == 0)
+		{
+			return;
+		}
+		
+		// WRITE THE FILE
+		FileStream fileStream = new FileStream(path, FileMode.Create);
+		BinaryWriter binaryWriter = new BinaryWriter(fileStream);
+		
+		binaryWriter.Write(boxEntries.Count); // entry count (unused)
+		binaryWriter.Write(boxEntries.Count); // entry count
+		binaryWriter.Write(24); // table offset
+		
+		binaryWriter.Write(planeEntries.Count); // entry count (unused)
+		binaryWriter.Write(planeEntries.Count); // entry count
+		binaryWriter.Write(24 + (28 * boxEntries.Count)); // table offset (initial data + length of box entries)
+		
+		// BOX ENTRIES
+		for (int i = 0; i < boxEntries.Count; i++)
+		{
+			// IDENTIFIER
+			char[] charArray = boxEntries[i].name.ToCharArray(0, 4);
+			Array.Reverse(charArray);
+			binaryWriter.Write(charArray);
+			
+			// AAAAAAAAAAAAA
+			binaryWriter.Write(DumbCheck(-boxTriggers[i].point1.localPosition.x));
+			binaryWriter.Write(DumbCheck(boxTriggers[i].point1.localPosition.y));
+			binaryWriter.Write(DumbCheck(boxTriggers[i].point1.localPosition.z));
+			
+			binaryWriter.Write(DumbCheck(-boxTriggers[i].point2.localPosition.x));
+			binaryWriter.Write(DumbCheck(boxTriggers[i].point2.localPosition.y));
+			binaryWriter.Write(DumbCheck(boxTriggers[i].point2.localPosition.z));
+		}
+		
+		// PLANE ENTRIES
+		for (int i = 0; i < planeEntries.Count; i++)
+		{
+			// IDENTIFIER
+			char[] charArray = planeEntries[i].name.ToCharArray(0, 4);
+			Array.Reverse(charArray);
+			binaryWriter.Write(charArray);
+			
+			// AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+			binaryWriter.Write(DumbCheck(-planeTriggers[i].point1.localPosition.x));
+			binaryWriter.Write(DumbCheck(planeTriggers[i].point1.localPosition.y));
+			binaryWriter.Write(DumbCheck(planeTriggers[i].point1.localPosition.z));
+			
+			binaryWriter.Write(DumbCheck(-planeTriggers[i].point2.localPosition.x));
+			binaryWriter.Write(DumbCheck(planeTriggers[i].point2.localPosition.y));
+			binaryWriter.Write(DumbCheck(planeTriggers[i].point2.localPosition.z));
+			
+			binaryWriter.Write(DumbCheck(-planeTriggers[i].point3.localPosition.x));
+			binaryWriter.Write(DumbCheck(planeTriggers[i].point3.localPosition.y));
+			binaryWriter.Write(DumbCheck(planeTriggers[i].point3.localPosition.z));
+			
+			binaryWriter.Write(DumbCheck(-planeTriggers[i].point4.localPosition.x));
+			binaryWriter.Write(DumbCheck(planeTriggers[i].point4.localPosition.y));
+			binaryWriter.Write(DumbCheck(planeTriggers[i].point4.localPosition.z));
+			
+			binaryWriter.Write(DumbCheck(-planeTriggers[i].planeNormal.x));
+			binaryWriter.Write(DumbCheck(planeTriggers[i].planeNormal.y));
+			binaryWriter.Write(DumbCheck(planeTriggers[i].planeNormal.z));
+			
+			// AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+			char[] charArray2 = planeTriggers[i].area.ToCharArray(0, 4);
+			Array.Reverse(charArray2);
+			binaryWriter.Write(charArray2);
+			
+			char[] charArray3 = planeTriggers[i].startPoint.ToCharArray(0, 4);
+			Array.Reverse(charArray3);
+			binaryWriter.Write(charArray3);
+			
+			char[] charArray4 = planeTriggers[i].lookPoint.ToCharArray(0, 4);
+			Array.Reverse(charArray4);
+			binaryWriter.Write(charArray4);
+		}
+		
+		// pointer thingy (lol)
+		binaryWriter.Write(8);
+		// wow look another one
+		binaryWriter.Write(20);
+		
+		// entry count (lol again)
+		binaryWriter.Write(2);
+		
+		// FOOTER
+		binaryWriter.Write(0xC0FFEE);
+		
+		// CONTINUED SHRUG
+		binaryWriter.Close();
+		fileStream.Close();
+		Debug.Log("Saved " + path);
+		
+		if (overwriteSlbInResources)
+		{
+			string path2 = Application.dataPath + "/Resources/" + gameVersion + "/levels/" + levelName + "/" + areaName + "/" + areaName + "_TRIGGER.slb";
+			File.Copy(path, path2, true);
+			Debug.Log("Copied to " + path2);
+		}
+	}
 	
 	#endregion
 	///////////////////////////////////////////////////////////////////
+	
 }

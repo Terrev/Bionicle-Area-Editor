@@ -24,6 +24,10 @@ public class ManagerEditor : Editor
 		{
 			manager.LoadCharSlb();
 		}
+		if (GUILayout.Button("Load Triggers SLB"))
+		{
+			manager.LoadTriggerSlb();
+		}
 		GUILayout.Space(10);
 		if (GUILayout.Button("Save Objects SLB"))
 		{
@@ -36,6 +40,10 @@ public class ManagerEditor : Editor
 		if (GUILayout.Button("Save Characters SLB"))
 		{
 			manager.SaveCharSlb();
+		}
+		if (GUILayout.Button("Save Triggers SLB"))
+		{
+			manager.SaveTriggerSlb();
 		}
 	}
 }
