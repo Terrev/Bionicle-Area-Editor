@@ -893,7 +893,7 @@ public class Manager : MonoBehaviour
 		
 		// OK NOW FOR ACTUAL FILE STUFF
 		// GET FILE PATH
-		string path = EditorUtility.SaveFilePanel("Save SLB", "", areaName + "_TRIGGER___WIP.slb", "slb");
+		string path = EditorUtility.SaveFilePanel("Save SLB", "", areaName + "_TRIGGER.slb", "slb");
 		if (path.Length == 0)
 		{
 			return;
