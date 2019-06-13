@@ -12,8 +12,17 @@ public class BionicleObject : MonoBehaviour
 	[System.NonSerialized]
 	public Transform collisionPoint2;
 	
+	int lolCounter; // lol
+	
 	void OnDrawGizmos()
 	{
+		lolCounter++;
+		if (lolCounter == 300) // dumb way of doing this only occasionally
+		{
+			CheckForCollisionPoints();
+			lolCounter = 0;
+		}
+		
 		if (collisionPoint1 != null && collisionPoint2 != null)
 		{
 			Gizmos.color = new Color(1.0f, 0.5f, 0.0f);

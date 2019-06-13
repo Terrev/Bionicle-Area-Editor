@@ -5,13 +5,17 @@ using UnityEngine;
 [ExecuteInEditMode]
 public class CollisionPointHack : MonoBehaviour
 {
-	// COUNTERACT ROTATION SO WE CAN SEE COLLISION ACTIVATION BOXES PROPERLY
 	void Update()
 	{
+		// COUNTERACT ROTATION SO WE CAN SEE COLLISION ACTIVATION BOXES PROPERLY
 		if (transform.parent.rotation != Quaternion.identity)
 		{
 			transform.localRotation = Quaternion.Euler(-transform.parent.rotation.eulerAngles.x, -transform.parent.rotation.eulerAngles.y, -transform.parent.rotation.eulerAngles.z);
 		}
-		transform.localPosition = Vector3.zero; // and don't let this move
+		// and don't let this move
+		if (transform.localPosition != Vector3.zero)
+		{
+			transform.localPosition = Vector3.zero;
+		}
 	}
 }

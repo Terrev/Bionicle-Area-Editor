@@ -132,8 +132,8 @@ public class PlaneTrigger : MonoBehaviour
 		point3.parent = null;
 		point4.parent = null;
 		
-		transform.position = Vector3.zero;
-		transform.rotation = Quaternion.identity;
+		transform.localPosition = Vector3.zero;
+		transform.localRotation = Quaternion.identity;
 		transform.localScale = Vector3.one;
 		
 		point1.parent = transform;

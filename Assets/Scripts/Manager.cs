@@ -18,6 +18,27 @@ public class Manager : MonoBehaviour
 	
 	
 	///////////////////////////////////////////////////////////////////
+	#region TEST
+	
+	public void LoadALotOfStuff()
+	{
+		string[] areas = Directory.GetDirectories(Application.dataPath + "/Resources/" + gameVersion + "/levels/" + levelName);
+		for (int i = 0; i < areas.Length; i++)
+		{
+			areaName = areas[i].Substring(areas[i].Length - 4);
+			if (areaName != levelName)
+			{
+				LoadTriggerSlb();
+			}
+		}
+	}
+	
+	#endregion
+	///////////////////////////////////////////////////////////////////
+	
+	
+	
+	///////////////////////////////////////////////////////////////////
 	#region OBJ
 	
 	public void LoadObjSlb()
@@ -175,14 +196,14 @@ public class Manager : MonoBehaviour
 			binaryWriter.Write(charArray);
 			
 			// LOCATION
-			binaryWriter.Write(DumbCheck(-entries[i].transform.position.x));
-			binaryWriter.Write(DumbCheck(entries[i].transform.position.y));
-			binaryWriter.Write(DumbCheck(entries[i].transform.position.z));
+			binaryWriter.Write(DumbCheck(-entries[i].transform.localPosition.x));
+			binaryWriter.Write(DumbCheck(entries[i].transform.localPosition.y));
+			binaryWriter.Write(DumbCheck(entries[i].transform.localPosition.z));
 			
 			// ORIENTATION
-			binaryWriter.Write(ClampRotation(DumbCheck(entries[i].transform.eulerAngles.x)));
-			binaryWriter.Write(ClampRotation(DumbCheck(-entries[i].transform.eulerAngles.y)));
-			binaryWriter.Write(ClampRotation(DumbCheck(-entries[i].transform.eulerAngles.z)));
+			binaryWriter.Write(ClampRotation(DumbCheck(entries[i].transform.localEulerAngles.x)));
+			binaryWriter.Write(ClampRotation(DumbCheck(-entries[i].transform.localEulerAngles.y)));
+			binaryWriter.Write(ClampRotation(DumbCheck(-entries[i].transform.localEulerAngles.z)));
 			
 			// UNKNOWN
 			binaryWriter.Write(bionicleObjects[i].unknown);
@@ -376,9 +397,9 @@ public class Manager : MonoBehaviour
 			binaryWriter.Write(charArray);
 			
 			// POSITION
-			binaryWriter.Write(DumbCheck(-entries[i].transform.position.x));
-			binaryWriter.Write(DumbCheck(entries[i].transform.position.y));
-			binaryWriter.Write(DumbCheck(entries[i].transform.position.z));
+			binaryWriter.Write(DumbCheck(-entries[i].transform.localPosition.x));
+			binaryWriter.Write(DumbCheck(entries[i].transform.localPosition.y));
+			binaryWriter.Write(DumbCheck(entries[i].transform.localPosition.z));
 			
 			// FLAGS
 			string flagsString = entries[i].name.Substring(5, entries[i].name.Length - 5);
@@ -609,9 +630,9 @@ public class Manager : MonoBehaviour
 			binaryWriter.Write(charArray);
 			
 			// POSITION
-			binaryWriter.Write(DumbCheck(-entries[i].transform.position.x));
-			binaryWriter.Write(DumbCheck(entries[i].transform.position.y));
-			binaryWriter.Write(DumbCheck(entries[i].transform.position.z));
+			binaryWriter.Write(DumbCheck(-entries[i].transform.localPosition.x));
+			binaryWriter.Write(DumbCheck(entries[i].transform.localPosition.y));
+			binaryWriter.Write(DumbCheck(entries[i].transform.localPosition.z));
 			
 			// ORIENTATION (unused)
 			binaryWriter.Write(bionicleCharacters[i].unusedOrientation.x);

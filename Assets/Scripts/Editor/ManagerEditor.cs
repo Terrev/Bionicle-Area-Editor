@@ -12,6 +12,12 @@ public class ManagerEditor : Editor
 		GUILayout.Space(10);
 		
 		Manager manager = (Manager)target;
+		/*
+		if (GUILayout.Button("Test"))
+		{
+			manager.LoadALotOfStuff();
+		}
+		*/
 		if (GUILayout.Button("Load Objects SLB"))
 		{
 			manager.LoadObjSlb();

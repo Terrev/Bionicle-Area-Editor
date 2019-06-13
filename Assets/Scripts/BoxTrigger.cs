@@ -83,7 +83,8 @@ public class BoxTrigger : MonoBehaviour
 	{
 		if (transform.localPosition == Vector3.zero
 		&& transform.localRotation == Quaternion.identity
-		&& transform.localScale == Vector3.one)
+		&& transform.localScale == Vector3.one
+		&& CheckIfCube())
 		{
 			return true;
 		}
@@ -120,17 +121,57 @@ public class BoxTrigger : MonoBehaviour
 		point1.parent = null;
 		point2.parent = null;
 		
-		transform.position = Vector3.zero;
-		transform.rotation = Quaternion.identity;
+		transform.localPosition = Vector3.zero;
+		transform.localRotation = Quaternion.identity;
 		transform.localScale = Vector3.one;
 		
 		point1.parent = transform;
 		point2.parent = transform;
 		
-		point1.rotation = Quaternion.identity;
-		point2.rotation = Quaternion.identity;
+		point1.localRotation = Quaternion.identity;
+		point2.localRotation = Quaternion.identity;
 		
 		point1.localScale = defaultHandleScale;
 		point2.localScale = defaultHandleScale;
+		
+		if (!CheckIfCube())
+		{
+			TurnIntoCube();
+		}
+	}
+	
+	public bool CheckIfCube()
+	{
+		Vector3 boxScale = new Vector3(Mathf.Abs(point1.localPosition.x - point2.localPosition.x), Mathf.Abs(point1.localPosition.y - point2.localPosition.y), Mathf.Abs(point1.localPosition.z - point2.localPosition.z));
+		// existing boxes don't have perfectly matching values, so we're allowing some wiggle room
+		if (Mathf.Abs(boxScale.x - boxScale.y) > 0.1f)
+		{
+			return false;
+		}
+		if (Mathf.Abs(boxScale.y - boxScale.z) > 0.1f)
+		{
+			return false;
+		}
+		if (Mathf.Abs(boxScale.z - boxScale.x) > 0.1f)
+		{
+			return false;
+		}
+		else
+		{
+			return true;
+		}
+	}
+	
+	public void TurnIntoCube()
+	{
+		// get dimensions of box
+		Vector3 boxScale = new Vector3(Mathf.Abs(point1.localPosition.x - point2.localPosition.x), Mathf.Abs(point1.localPosition.y - point2.localPosition.y), Mathf.Abs(point1.localPosition.z - point2.localPosition.z));
+		// get biggest value out of length/width/height
+		float size = Mathf.Max(boxScale.x, boxScale.y, boxScale.z);
+		// get the center of it
+		Vector3 center = new Vector3((point1.localPosition.x + point2.localPosition.x) / 2.0f, (point1.localPosition.y + point2.localPosition.y) / 2.0f, (point1.localPosition.z + point2.localPosition.z) / 2.0f);
+		// calculate new localPositions
+		point1.localPosition = new Vector3(center.x + (size / 2.0f), center.y - (size / 2.0f), center.z - (size / 2.0f));
+		point2.localPosition = new Vector3(center.x - (size / 2.0f), center.y + (size / 2.0f), center.z + (size / 2.0f));
 	}
 }
