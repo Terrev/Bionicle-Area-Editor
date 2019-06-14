@@ -158,6 +158,11 @@ public class BoxTrigger : MonoBehaviour
 	
 	public void TurnIntoCube()
 	{
+		if (CheckIfCube())
+		{
+			Debug.Log(gameObject.name + " is already a cube");
+			return;
+		}
 		// get dimensions of box
 		Vector3 boxScale = new Vector3(Mathf.Abs(point1.localPosition.x - point2.localPosition.x), Mathf.Abs(point1.localPosition.y - point2.localPosition.y), Mathf.Abs(point1.localPosition.z - point2.localPosition.z));
 		// get biggest value out of length/width/height
