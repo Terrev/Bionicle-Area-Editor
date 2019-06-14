@@ -28,6 +28,9 @@ public class Manager : MonoBehaviour
 			areaName = areas[i].Substring(areas[i].Length - 4);
 			if (areaName != levelName)
 			{
+				//LoadObjSlb();
+				//LoadPosSlb();
+				//LoadCharSlb();
 				LoadTriggerSlb();
 			}
 		}
@@ -45,6 +48,11 @@ public class Manager : MonoBehaviour
 	{
 		// PREPARE FOR FILE READING
 		string path = Application.dataPath + "/Resources/" + gameVersion + "/levels/" + levelName + "/" + areaName + "/" + areaName + "_OBJ.slb";
+		if (!File.Exists(path))
+		{
+			Debug.LogError("File not found: " + path);
+			return;
+		}
 		FileStream fileStream = new FileStream(path, FileMode.Open);
 		BinaryReader binaryReader = new BinaryReader(fileStream);
 		
@@ -311,6 +319,11 @@ public class Manager : MonoBehaviour
 	{
 		// PREPARE FOR FILE READING
 		string path = Application.dataPath + "/Resources/" + gameVersion + "/levels/" + levelName + "/" + areaName + "/" + areaName + "_POS.slb";
+		if (!File.Exists(path))
+		{
+			Debug.LogError("File not found: " + path);
+			return;
+		}
 		FileStream fileStream = new FileStream(path, FileMode.Open);
 		BinaryReader binaryReader = new BinaryReader(fileStream);
 		
@@ -440,6 +453,11 @@ public class Manager : MonoBehaviour
 	{
 		// PREPARE FOR FILE READING
 		string path = Application.dataPath + "/Resources/" + gameVersion + "/levels/" + levelName + "/" + areaName + "/" + areaName + "_CHAR.slb";
+		if (!File.Exists(path))
+		{
+			Debug.LogError("File not found: " + path);
+			return;
+		}
 		FileStream fileStream = new FileStream(path, FileMode.Open);
 		BinaryReader binaryReader = new BinaryReader(fileStream);
 		
@@ -704,6 +722,11 @@ public class Manager : MonoBehaviour
 	{
 		// PREPARE FOR FILE READING
 		string path = Application.dataPath + "/Resources/" + gameVersion + "/levels/" + levelName + "/" + areaName + "/" + areaName + "_TRIGGER.slb";
+		if (!File.Exists(path))
+		{
+			Debug.LogError("File not found: " + path);
+			return;
+		}
 		FileStream fileStream = new FileStream(path, FileMode.Open);
 		BinaryReader binaryReader = new BinaryReader(fileStream);
 		
@@ -814,7 +837,7 @@ public class Manager : MonoBehaviour
 			planeTrigger.area = area;
 			planeTrigger.startPoint = startPoint;
 			planeTrigger.lookPoint = lookPoint;
-			planeTrigger.planeNormal = planeNormal;
+			planeTrigger.originalPlaneNormal = planeNormal;
 			
 			// MOAR COPYPASTE
 			GameObject blah1 = Instantiate(Resources.Load("_Editor/Plane Trigger Corner", typeof(GameObject))) as GameObject;
@@ -892,6 +915,10 @@ public class Manager : MonoBehaviour
 				return;
 			}
 			boxTrigger.ApplyTransformation();
+			if (!boxTrigger.CheckIfCube())
+			{
+				Debug.LogWarning(box.name + " is not a cube");
+			}
 			boxTriggers.Add(boxTrigger);
 		}
 		foreach (Transform plane in planesParent)

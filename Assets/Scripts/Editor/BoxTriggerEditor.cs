@@ -14,5 +14,9 @@ public class BoxTriggerEditor : Editor
 		{
 			boxTrigger.ApplyTransformation();
 		}
+		if (GUILayout.Button("Make into cube"))
+		{
+			boxTrigger.TurnIntoCube();
+		}
 	}
 }

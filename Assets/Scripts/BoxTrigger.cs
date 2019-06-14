@@ -20,7 +20,7 @@ public class BoxTrigger : MonoBehaviour
 		
 		if (CheckPoints())
 		{
-			if (CheckValidity())
+			if (CheckValidity() && CheckIfCube())
 			{
 				Gizmos.color = Color.red;
 			}
@@ -83,8 +83,7 @@ public class BoxTrigger : MonoBehaviour
 	{
 		if (transform.localPosition == Vector3.zero
 		&& transform.localRotation == Quaternion.identity
-		&& transform.localScale == Vector3.one
-		&& CheckIfCube())
+		&& transform.localScale == Vector3.one)
 		{
 			return true;
 		}
@@ -133,11 +132,6 @@ public class BoxTrigger : MonoBehaviour
 		
 		point1.localScale = defaultHandleScale;
 		point2.localScale = defaultHandleScale;
-		
-		if (!CheckIfCube())
-		{
-			TurnIntoCube();
-		}
 	}
 	
 	public bool CheckIfCube()

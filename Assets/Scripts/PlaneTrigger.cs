@@ -10,6 +10,9 @@ public class PlaneTrigger : MonoBehaviour
 	public Vector3 planeNormal = new Vector3(0.0f, 0.0f, 1.0f);
 	
 	[System.NonSerialized]
+	public Vector3 originalPlaneNormal = new Vector3(0.0f, 0.0f, 1.0f);
+	
+	[System.NonSerialized]
 	public Transform point1;
 	[System.NonSerialized]
 	public Transform point2;
@@ -49,9 +52,16 @@ public class PlaneTrigger : MonoBehaviour
 			
 			planeNormal = GetPlaneNormal();
 			
-			Vector3 normalVisual = centerOfPlane + planeNormal * 10;
+			Vector3 normalVisualEnd = centerOfPlane + planeNormal * 10;
 			
-			Gizmos.DrawLine(centerOfPlane, normalVisual);
+			Gizmos.DrawLine(centerOfPlane, normalVisualEnd);
+			
+			/*
+			Vector3 originalNormalVisualStart = centerOfPlane + originalPlaneNormal * 10;
+			Vector3 originalNormalVisualEnd = centerOfPlane + originalPlaneNormal * 20;
+			Gizmos.color = Color.blue;
+			Gizmos.DrawLine(originalNormalVisualStart, originalNormalVisualEnd);
+			*/
 		}
 	}
 	
@@ -80,8 +90,8 @@ public class PlaneTrigger : MonoBehaviour
 		if (transform.localPosition == Vector3.zero
 		&& transform.localRotation == Quaternion.identity
 		&& transform.localScale == Vector3.one
-		&& point2.position == new Vector3(point4.position.x, point1.position.y, point4.position.z)
-		&& point3.position == new Vector3(point1.position.x, point4.position.y, point1.position.z))
+		/*&& point2.position == new Vector3(point4.position.x, point1.position.y, point4.position.z)
+		&& point3.position == new Vector3(point1.position.x, point4.position.y, point1.position.z)*/)
 		{
 			return true;
 		}
@@ -151,9 +161,11 @@ public class PlaneTrigger : MonoBehaviour
 		point3.localScale = defaultHandleScale;
 		point4.localScale = defaultHandleScale;
 		
+		/*
 		// regenerate points 2 and 3
 		point2.position = new Vector3(point4.position.x, point1.position.y, point4.position.z);
 		point3.position = new Vector3(point1.position.x, point4.position.y, point1.position.z);
+		*/
 		
 		planeNormal = GetPlaneNormal();
 	}
