@@ -26,7 +26,7 @@ public class Manager : MonoBehaviour
 		for (int i = 0; i < areas.Length; i++)
 		{
 			areaName = areas[i].Substring(areas[i].Length - 4);
-			if (areaName != levelName)
+			if (areaName != levelName && areaName != "ures") // textures folder lol
 			{
 				//LoadObjSlb();
 				//LoadPosSlb();
@@ -101,6 +101,12 @@ public class Manager : MonoBehaviour
 			// INSTANTIATE IN SCENE
 			GameObject newGameObject;
 			GameObject obj = (GameObject)Resources.Load(gameVersion + "/levels/" + levelName + "/" + areaName + "/" + identifier, typeof(GameObject));
+			// for the alpha's Xs folders
+			if (obj == null)
+			{
+				obj = (GameObject)Resources.Load(gameVersion + "/levels/" + levelName + "/" + areaName + "/Xs/" + identifier, typeof(GameObject));
+			}
+			// if THAT didn't work
 			if (obj == null)
 			{
 				Debug.LogWarning("Could not load model for " + identifier + ", please make sure the .x is converted");
