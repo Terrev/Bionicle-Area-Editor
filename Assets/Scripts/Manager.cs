@@ -20,7 +20,32 @@ public class Manager : MonoBehaviour
 	///////////////////////////////////////////////////////////////////
 	#region TEST
 	
-	public void LoadALotOfStuff()
+	public void LoadEntireGame()
+	{
+		levelName = "fren";
+		LoadEntireLevel();
+		if (gameVersion != "alpha")
+		{
+			levelName = "lev0";
+			LoadEntireLevel();
+		}
+		levelName = "lev1";
+		LoadEntireLevel();
+		levelName = "lev2";
+		LoadEntireLevel();
+		levelName = "lev3";
+		LoadEntireLevel();
+		levelName = "lev4";
+		LoadEntireLevel();
+		levelName = "lev5";
+		LoadEntireLevel();
+		levelName = "lev6";
+		LoadEntireLevel();
+		levelName = "lev7";
+		LoadEntireLevel();
+	}
+	
+	public void LoadEntireLevel()
 	{
 		string[] areas = Directory.GetDirectories(Application.dataPath + "/Resources/" + gameVersion + "/levels/" + levelName);
 		for (int i = 0; i < areas.Length; i++)

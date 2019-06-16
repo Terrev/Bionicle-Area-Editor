@@ -138,15 +138,15 @@ public class BoxTrigger : MonoBehaviour
 	{
 		Vector3 boxScale = new Vector3(Mathf.Abs(point1.localPosition.x - point2.localPosition.x), Mathf.Abs(point1.localPosition.y - point2.localPosition.y), Mathf.Abs(point1.localPosition.z - point2.localPosition.z));
 		// existing boxes don't have perfectly matching values, so we're allowing some wiggle room
-		if (Mathf.Abs(boxScale.x - boxScale.y) > 0.1f)
+		if (Mathf.Abs(boxScale.x - boxScale.y) > 0.01f)
 		{
 			return false;
 		}
-		if (Mathf.Abs(boxScale.y - boxScale.z) > 0.1f)
+		if (Mathf.Abs(boxScale.y - boxScale.z) > 0.01f)
 		{
 			return false;
 		}
-		if (Mathf.Abs(boxScale.z - boxScale.x) > 0.1f)
+		if (Mathf.Abs(boxScale.z - boxScale.x) > 0.01f)
 		{
 			return false;
 		}

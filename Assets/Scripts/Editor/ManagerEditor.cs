@@ -15,7 +15,7 @@ public class ManagerEditor : Editor
 		/*
 		if (GUILayout.Button("Test"))
 		{
-			manager.LoadALotOfStuff();
+			manager.LoadEntireGame();
 		}
 		*/
 		if (GUILayout.Button("Load Objects SLB"))
