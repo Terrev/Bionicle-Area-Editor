@@ -81,7 +81,7 @@ public class Movelists : MonoBehaviour
 			UInt32 flags2 = binaryReader.ReadUInt32();
 			entry.SetAttribute("flags_2", Convert.ToString(flags2, 2).PadLeft(32, '0'));
 			
-			UInt16 reservedCounter = binaryReader.ReadUInt16();
+			Int16 reservedCounter = binaryReader.ReadInt16();
 			entry.SetAttribute("reserved_counter", reservedCounter.ToString());
 			fileStream.Seek(2, SeekOrigin.Current); // skip padding
 			
@@ -103,7 +103,7 @@ public class Movelists : MonoBehaviour
 				char[] charArray3 = new char[4];
 				charArray3 = binaryReader.ReadChars(4);
 				Array.Reverse(charArray3);
-				string id3 = new string(charArray2);
+				string id3 = new string(charArray3);
 				splitTrigger.SetAttribute("id", id3);
 				
 				float sFloat1 = binaryReader.ReadSingle();
@@ -163,7 +163,7 @@ public class Movelists : MonoBehaviour
 			UInt32 flags2 = binaryReader.ReadUInt32();
 			entry.SetAttribute("flags_2", Convert.ToString(flags2, 2).PadLeft(32, '0'));
 			
-			UInt16 reservedCounter = binaryReader.ReadUInt16();
+			Int16 reservedCounter = binaryReader.ReadInt16();
 			entry.SetAttribute("reserved_counter", reservedCounter.ToString());
 			fileStream.Seek(2, SeekOrigin.Current); // skip padding
 			
@@ -189,7 +189,7 @@ public class Movelists : MonoBehaviour
 				char[] charArray3 = new char[4];
 				charArray3 = binaryReader.ReadChars(4);
 				Array.Reverse(charArray3);
-				string id3 = new string(charArray2);
+				string id3 = new string(charArray3);
 				splitTrigger.SetAttribute("id", id3);
 				
 				float sFloat1 = binaryReader.ReadSingle();
@@ -228,5 +228,221 @@ public class Movelists : MonoBehaviour
 		{
 			xmlDocument.Save(writer);
 		}
+		Debug.Log("Saved " + exportPath);
+	}
+	
+	public void XmlToSlb()
+	{
+		string importPath = EditorUtility.OpenFilePanel("Load XML", "", "xml");
+		if (importPath.Length == 0)
+		{
+			return;
+		}
+		
+		XmlDocument xmlDocument = new XmlDocument();
+		xmlDocument.LoadXml(File.ReadAllText(importPath));
+		
+		string pathWithoutFile = Path.GetDirectoryName(importPath);
+		string exportPath = EditorUtility.SaveFilePanel("Save SLB", pathWithoutFile, "Movelist_OUTPUT.slb", "slb");
+		if (exportPath.Length == 0)
+		{
+			return;
+		}
+		
+		FileStream fileStream = new FileStream(exportPath, FileMode.Create);
+		BinaryWriter binaryWriter = new BinaryWriter(fileStream);
+		
+		// ID
+		XmlElement root = (XmlElement)xmlDocument.DocumentElement;
+		char[] charArray = root.Attributes["id"].Value.ToCharArray(0, 4);
+		Array.Reverse(charArray);
+		binaryWriter.Write(charArray);
+		
+		// TABLE 1
+		XmlElement table1 = (XmlElement)root.SelectSingleNode(".//table1");
+		binaryWriter.Write(table1.ChildNodes.Count); // entry count (unused)
+		binaryWriter.Write(table1.ChildNodes.Count); // entry count
+		binaryWriter.Write(28); // table offset
+		
+		// TABLE 2
+		XmlElement table2 = (XmlElement)root.SelectSingleNode(".//table2");
+		binaryWriter.Write(table2.ChildNodes.Count); // entry count (unused)
+		binaryWriter.Write(table2.ChildNodes.Count); // entry count
+		binaryWriter.Write(28 + (table1.ChildNodes.Count * 44)); // table offset
+		
+		int table1SplitTriggerCount = 0;
+		int table2SplitTriggerCount = 0;
+		
+		// TABLE 1 CONTENTS
+		foreach (XmlNode movelistEntry in table1.ChildNodes)
+		{
+			char[] charArray1 = movelistEntry.Attributes["id_1"].Value.ToCharArray(0, 4);
+			Array.Reverse(charArray1);
+			binaryWriter.Write(charArray1);
+			
+			char[] charArray2 = movelistEntry.Attributes["id_2"].Value.ToCharArray(0, 4);
+			Array.Reverse(charArray2);
+			binaryWriter.Write(charArray2);
+			
+			binaryWriter.Write(Convert.ToUInt16(movelistEntry.Attributes["flags_1"].Value, 2));
+			
+			binaryWriter.Write(Convert.ToInt16(movelistEntry.Attributes["index"].Value));
+			
+			binaryWriter.Write(Convert.ToUInt32(movelistEntry.Attributes["long_1"].Value));
+			
+			binaryWriter.Write(Convert.ToSingle(movelistEntry.Attributes["float_1"].Value));
+			
+			binaryWriter.Write(Convert.ToSingle(movelistEntry.Attributes["float_2"].Value));
+			
+			binaryWriter.Write(Convert.ToUInt32(movelistEntry.Attributes["flags_2"].Value, 2));
+			
+			binaryWriter.Write(Convert.ToInt16(movelistEntry.Attributes["reserved_counter"].Value));
+			
+			binaryWriter.Write(new byte[2]); // padding
+			
+			binaryWriter.Write(movelistEntry.ChildNodes.Count); // entry count (unused)
+			binaryWriter.Write(movelistEntry.ChildNodes.Count); // entry count
+			
+			binaryWriter.Write(28 + (table1.ChildNodes.Count * 44) + (table2.ChildNodes.Count * 48) + (table1SplitTriggerCount * 24)); // offset
+			if (movelistEntry.HasChildNodes)
+			{
+				foreach (XmlNode splitTriggerNode in movelistEntry.ChildNodes)
+				{
+					table1SplitTriggerCount++;
+				}
+			}
+		}
+		
+		// TABLE 2 CONTENTS
+		foreach (XmlNode movelistEntry in table2.ChildNodes)
+		{
+			char[] charArray1 = movelistEntry.Attributes["id_1"].Value.ToCharArray(0, 4);
+			Array.Reverse(charArray1);
+			binaryWriter.Write(charArray1);
+			
+			char[] charArray2 = movelistEntry.Attributes["id_2"].Value.ToCharArray(0, 4);
+			Array.Reverse(charArray2);
+			binaryWriter.Write(charArray2);
+			
+			binaryWriter.Write(Convert.ToUInt16(movelistEntry.Attributes["flags_1"].Value, 2));
+			
+			binaryWriter.Write(Convert.ToInt16(movelistEntry.Attributes["index"].Value));
+			
+			binaryWriter.Write(Convert.ToUInt32(movelistEntry.Attributes["long_1"].Value));
+			
+			binaryWriter.Write(Convert.ToSingle(movelistEntry.Attributes["float_1"].Value));
+			
+			binaryWriter.Write(Convert.ToSingle(movelistEntry.Attributes["float_2"].Value));
+			
+			binaryWriter.Write(Convert.ToUInt32(movelistEntry.Attributes["flags_2"].Value, 2));
+			
+			binaryWriter.Write(Convert.ToInt16(movelistEntry.Attributes["reserved_counter"].Value));
+			
+			binaryWriter.Write(new byte[2]); // padding
+			
+			binaryWriter.Write(movelistEntry.ChildNodes.Count); // entry count (unused)
+			binaryWriter.Write(movelistEntry.ChildNodes.Count); // entry count
+			
+			binaryWriter.Write(28 + (table1.ChildNodes.Count * 44) + (table2.ChildNodes.Count * 48) + (table1SplitTriggerCount * 24) + (table2SplitTriggerCount * 24)); // offset
+			if (movelistEntry.HasChildNodes)
+			{
+				foreach (XmlNode splitTriggerNode in movelistEntry.ChildNodes)
+				{
+					table2SplitTriggerCount++;
+				}
+			}
+			
+			binaryWriter.Write(Convert.ToUInt32(movelistEntry.Attributes["extra"].Value));
+		}
+		
+		// TABLE 1 SPLIT TRIGGERS
+		foreach (XmlNode movelistEntry in table1.ChildNodes)
+		{
+			if (movelistEntry.HasChildNodes)
+			{
+				foreach (XmlNode splitTriggerNode in movelistEntry.ChildNodes)
+				{
+					binaryWriter.Write(Convert.ToUInt32(splitTriggerNode.Attributes["input"].Value, 2));
+					
+					char[] charArrayRegret = splitTriggerNode.Attributes["id"].Value.ToCharArray(0, 4);
+					Array.Reverse(charArrayRegret);
+					binaryWriter.Write(charArrayRegret);
+					
+					binaryWriter.Write(Convert.ToSingle(splitTriggerNode.Attributes["float_1"].Value));
+					
+					binaryWriter.Write(Convert.ToSingle(splitTriggerNode.Attributes["float_2"].Value));
+					
+					binaryWriter.Write(Convert.ToSingle(splitTriggerNode.Attributes["float_3"].Value));
+					
+					binaryWriter.Write(Convert.ToByte(splitTriggerNode.Attributes["flags"].Value, 2));
+					
+					binaryWriter.Write(new byte[3]); // padding
+				}
+			}
+		}
+		
+		// TABLE 2 SPLIT TRIGGERS
+		// GOD I LOVE COPY PASTE i"M GONNA COPY PASTE THE BED ON TOP of ME
+		foreach (XmlNode movelistEntry in table2.ChildNodes)
+		{
+			if (movelistEntry.HasChildNodes)
+			{
+				foreach (XmlNode splitTriggerNode in movelistEntry.ChildNodes)
+				{
+					binaryWriter.Write(Convert.ToUInt32(splitTriggerNode.Attributes["input"].Value, 2));
+					
+					char[] charArrayRegret = splitTriggerNode.Attributes["id"].Value.ToCharArray(0, 4);
+					Array.Reverse(charArrayRegret);
+					binaryWriter.Write(charArrayRegret);
+					
+					binaryWriter.Write(Convert.ToSingle(splitTriggerNode.Attributes["float_1"].Value));
+					
+					binaryWriter.Write(Convert.ToSingle(splitTriggerNode.Attributes["float_2"].Value));
+					
+					binaryWriter.Write(Convert.ToSingle(splitTriggerNode.Attributes["float_3"].Value));
+					
+					binaryWriter.Write(Convert.ToByte(splitTriggerNode.Attributes["flags"].Value, 2));
+					
+					binaryWriter.Write(new byte[3]); // padding
+				}
+			}
+		}
+		
+		// OFFSETS
+		binaryWriter.Write(12);
+		binaryWriter.Write(24);
+		
+		for (int i = 0; i < table1.ChildNodes.Count; i++)
+		{
+			int offset = 28; // initial data
+			if (i > 0)
+			{
+				offset += i * 44; // skip forward as many entries as we need
+			}
+			offset += 40; // entry data up to first offset
+			binaryWriter.Write(offset);
+		}
+		
+		for (int j = 0; j < table2.ChildNodes.Count; j++)
+		{
+			int offset = 28 + (table1.ChildNodes.Count * 44); // initial data
+			if (j > 0)
+			{
+				offset += j * 48; // skip forward as many entries as we need
+			}
+			offset += 40; // entry data up to first offset
+			binaryWriter.Write(offset);
+			offset += 4; // extra
+		}
+		
+		// OFFSET COUNT
+		binaryWriter.Write(2 + table1.ChildNodes.Count + table2.ChildNodes.Count);
+		
+		// FOOTER
+		binaryWriter.Write(0xC0FFEE);
+		
+		binaryWriter.Close();
+		fileStream.Close();
+		Debug.Log("Saved " + exportPath);
 	}
 }

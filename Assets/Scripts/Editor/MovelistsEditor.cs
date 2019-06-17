@@ -16,5 +16,9 @@ public class MovelistsEditor : Editor
 		{
 			movelists.SlbToXml();
 		}
+		if (GUILayout.Button("Movelist XML to SLB"))
+		{
+			movelists.XmlToSlb();
+		}
 	}
 }
