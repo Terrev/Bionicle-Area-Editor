@@ -10,7 +10,7 @@ public class Tester : MonoBehaviour
 	
 	void Awake()
 	{
-		CharTest();
+		HiveTest();
 	}
 	
 	void ObjTest()
@@ -290,5 +290,99 @@ public class Tester : MonoBehaviour
 		
 		File.WriteAllLines(Application.dataPath + "/Output.txt", stringsToWrite.ToArray());
 	}
+	
+	void HiveTest()
+	{
+		List<string> stringsToWrite = new List<string>();
+		
+		string[] paths = Directory.GetFiles(Application.dataPath + "/Resources", "*_HIVE.slb", SearchOption.AllDirectories);
+		/*
+		for (int i = 0; i < paths.Length; i++)
+		{
+			Debug.Log(paths[i]);
+		}
+		*/
+		
+		foreach (string path in paths)
+		{
+			string fileName = Path.GetFileName(path);
+			/*
+			if (fileName.StartsWith("cin"))
+			{
+				continue;
+			}
+			*/
+			
+			// lol
+			//stringsToWrite.Add("\n=====================================================================\n" + path.Substring(40) + "\n=====================================================================");
+			
+			FileStream fileStream = new FileStream(path, FileMode.Open);
+			BinaryReader binaryReader = new BinaryReader(fileStream);
+			
+			// SKIP UNNEEDED/UNUSED STUFF AT START OF FILE
+			binaryReader.BaseStream.Position = 4;
+			
+			// READ BASIC INFO
+			UInt32 entryCount = binaryReader.ReadUInt32();
+			UInt32 tableOffset = binaryReader.ReadUInt32();
+			
+			// GO TO BEGINNING OF TABLE
+			fileStream.Seek(tableOffset, SeekOrigin.Begin);
+			
+			// LOOP THROUGH ENTRIES
+			for (int i = 0; i < entryCount; i++)
+			{
+				// IDENTIFIER
+				// read the characters then turn them into a string we can use more easily
+				string identifier = Utilities.CharArrayToString(binaryReader.ReadChars(4));
+				
+				// POSITION
+				Vector3 position = new Vector3(-binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
+				
+				// ORIENTATION
+				float orientation = -binaryReader.ReadSingle();
+				
+				// COLLISION CYLINDER POINT 1
+				Vector3 collisionPoint1 = new Vector3(-binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
+				
+				// COLLISION CYLINDER POINT 2
+				Vector3 collisionPoint2 = new Vector3(-binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
+				
+				// HEALTH
+				UInt32 health = binaryReader.ReadUInt32();
+				
+				// SPAWN ID
+				string characterToSpawn = Utilities.CharArrayToString(binaryReader.ReadChars(4));
+				
+				// MAX SPAWNS
+				int maxSpawns = (int)binaryReader.ReadByte();
+				// padding
+				fileStream.Seek(3, SeekOrigin.Current);
+				
+				// PHYSICS GROUP ID
+				string spawnPoint = Utilities.CharArrayToString(binaryReader.ReadChars(4));
+			}
+			
+			// testing testing
+			UInt32 offsetThing = binaryReader.ReadUInt32();
+			UInt32 tableCount = binaryReader.ReadUInt32();
+			if (tableCount == 1)
+			{
+				Debug.Log(tableCount + " " + path);
+			}
+			else
+			{
+				Debug.LogError(tableCount + " " + path);
+			}
+			// SHRUUUUG
+			binaryReader.Close();
+			fileStream.Close();
+			Resources.UnloadUnusedAssets();
+			System.GC.Collect();
+		}
+		
+		File.WriteAllLines(Application.dataPath + "/Output.txt", stringsToWrite.ToArray());
+	}
+	
 	
 }

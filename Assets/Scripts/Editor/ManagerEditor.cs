@@ -34,6 +34,10 @@ public class ManagerEditor : Editor
 		{
 			manager.LoadTriggerSlb();
 		}
+		if (GUILayout.Button("Load Hives SLB"))
+		{
+			manager.LoadHiveSlb();
+		}
 		GUILayout.Space(10);
 		if (GUILayout.Button("Save Objects SLB"))
 		{
@@ -50,6 +54,10 @@ public class ManagerEditor : Editor
 		if (GUILayout.Button("Save Triggers SLB"))
 		{
 			manager.SaveTriggerSlb();
+		}
+		if (GUILayout.Button("Save Hives SLB"))
+		{
+			manager.SaveHiveSlb();
 		}
 	}
 }

@@ -1030,4 +1030,254 @@ public class Manager : MonoBehaviour
 	#endregion
 	///////////////////////////////////////////////////////////////////
 	
+	
+	
+	///////////////////////////////////////////////////////////////////
+	#region HIVE
+	
+	public void LoadHiveSlb()
+	{
+		// PREPARE FOR FILE READING
+		string path = Application.dataPath + "/Resources/" + gameVersion + "/levels/" + levelName + "/" + areaName + "/" + areaName + "_HIVE.slb";
+		if (!File.Exists(path))
+		{
+			Debug.LogError("File not found: " + path);
+			return;
+		}
+		FileStream fileStream = new FileStream(path, FileMode.Open);
+		BinaryReader binaryReader = new BinaryReader(fileStream);
+		
+		// MAKE SLB PARENT GAMEOBJECT
+		// doing this after opening the file so we don't just get an empty gameobject if we entered an invalid name or something
+		GameObject slbParent = new GameObject(areaName + "_HIVE.slb");
+		
+		// SKIP UNNEEDED/UNUSED STUFF AT START OF FILE
+		binaryReader.BaseStream.Position = 4;
+		
+		// READ BASIC INFO
+		UInt32 entryCount = binaryReader.ReadUInt32();
+		UInt32 tableOffset = binaryReader.ReadUInt32();
+		
+		// GO TO BEGINNING OF TABLE
+		fileStream.Seek(tableOffset, SeekOrigin.Begin);
+		
+		// LOOP THROUGH ENTRIES
+		for (int i = 0; i < entryCount; i++)
+		{
+			// IDENTIFIER
+			// read the characters then turn them into a string we can use more easily
+			string identifier = Utilities.CharArrayToString(binaryReader.ReadChars(4));
+			
+			// POSITION
+			Vector3 position = new Vector3(-binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
+			
+			// ORIENTATION
+			float orientation = -binaryReader.ReadSingle();
+			
+			// COLLISION POINT 1
+			Vector3 collisionPoint1 = new Vector3(-binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
+			
+			// COLLISION POINT 2
+			Vector3 collisionPoint2 = new Vector3(-binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
+			
+			// HEALTH
+			UInt32 health = binaryReader.ReadUInt32();
+			
+			// SPAWN ID
+			string characterToSpawn = Utilities.CharArrayToString(binaryReader.ReadChars(4));
+			
+			// MAX SPAWNS
+			int maxSpawns = (int)binaryReader.ReadByte();
+			// padding
+			fileStream.Seek(3, SeekOrigin.Current);
+			
+			// PHYSICS GROUP ID
+			string spawnPoint = Utilities.CharArrayToString(binaryReader.ReadChars(4));
+			
+			// INSTANTIATE IN SCENE
+			GameObject newGameObject;
+			GameObject obj = (GameObject)Resources.Load(gameVersion + "/levels/" + levelName + "/" + areaName + "/" + identifier, typeof(GameObject));
+			// for the alpha's Xs folders - the alpha doesn't even HAVE hives but whatever
+			if (obj == null)
+			{
+				obj = (GameObject)Resources.Load(gameVersion + "/levels/" + levelName + "/" + areaName + "/Xs/" + identifier, typeof(GameObject));
+			}
+			// if THAT didn't work
+			if (obj == null)
+			{
+				Debug.LogWarning("Could not load model for " + identifier + ", please make sure the .x is converted");
+				newGameObject = Instantiate(Resources.Load("_Editor/Object Marker", typeof(GameObject)), position, Quaternion.Euler(0.0f, orientation, 0.0f), slbParent.transform) as GameObject;
+				newGameObject.name = identifier;
+			}
+			else
+			{
+				newGameObject = Instantiate(obj, position, Quaternion.Euler(0.0f, orientation, 0.0f), slbParent.transform) as GameObject;
+				newGameObject.name = identifier;
+			}
+			// HIVE COMPONENT FOR EXTRA DATA
+			Hive hive = newGameObject.AddComponent<Hive>() as Hive;
+			hive.health = (int)health;
+			hive.characterToSpawn = characterToSpawn;
+			hive.maxSpawns = maxSpawns;
+			hive.spawnPoint = spawnPoint;
+			// COLLISION POINT GAMEOBJECTS
+			// PARENT FOR DUMB ROTATION HACK
+			GameObject collisionPointParent = new GameObject("Collision Points");
+			collisionPointParent.AddComponent<CollisionPointHack>();
+			collisionPointParent.transform.parent = newGameObject.transform;
+			collisionPointParent.transform.localPosition = Vector3.zero;
+			collisionPointParent.transform.localRotation = Quaternion.identity;
+			
+			// POINT 1
+			GameObject blah = Instantiate(Resources.Load("_Editor/Collision Point", typeof(GameObject))) as GameObject;
+			blah.name = "Collision Point 1";
+			blah.transform.parent = collisionPointParent.transform;
+			blah.transform.localPosition = collisionPoint1;
+			blah.transform.localRotation = Quaternion.identity;
+			
+			// POINT 2
+			GameObject blah2 = Instantiate(Resources.Load("_Editor/Collision Point", typeof(GameObject))) as GameObject;
+			blah2.name = "Collision Point 2";
+			blah2.transform.parent = collisionPointParent.transform;
+			blah2.transform.localPosition = collisionPoint2;
+			blah2.transform.localRotation = Quaternion.identity;
+		}
+		// SHRUUUUG
+		binaryReader.Close();
+		fileStream.Close();
+		Debug.Log("Loaded " + path);
+	}
+	
+	
+	public void SaveHiveSlb()
+	{
+		// LOOK OVER SCENE AND ERROR CHECK
+		// get slb parent
+		GameObject parentGameObject = GameObject.Find("/" + areaName + "_HIVE.slb");
+		if (parentGameObject == null)
+		{
+			Debug.LogError("Couldn't find GameObject named " + areaName + "_HIVE.slb");
+			return;
+		}
+		// grab the slb's gameobjects/entries
+		List<GameObject> entries = new List<GameObject>();
+		foreach (Transform entry in parentGameObject.transform)
+		{
+			entries.Add(entry.gameObject);
+		}
+		// make sure all entry gameobjects have Hive components (and grab them all)
+		List<Hive> hives = new List<Hive>();
+		foreach (GameObject entry in entries)
+		{
+			Hive hive = entry.GetComponent<Hive>();
+			if (hive == null)
+			{
+				Debug.LogError("No Hive component on " + entry.name);
+				return;
+			}
+			hives.Add(hive);
+		}
+		
+		// OK NOW FOR ACTUAL FILE STUFF
+		// GET FILE PATH
+		string path = EditorUtility.SaveFilePanel("Save SLB", "", areaName + "_HIVE.slb", "slb");
+		if (path.Length == 0)
+		{
+			return;
+		}
+		
+		// WRITE THE FILE
+		FileStream fileStream = new FileStream(path, FileMode.Create);
+		BinaryWriter binaryWriter = new BinaryWriter(fileStream);
+		
+		binaryWriter.Write(entries.Count); // entry count (unused)
+		binaryWriter.Write(entries.Count); // entry count
+		binaryWriter.Write(12); // table offset
+		
+		// ENTRIES
+		for (int i = 0; i < entries.Count; i++)
+		{
+			// IDENTIFIER
+			binaryWriter.Write(Utilities.StringToCharArray(entries[i].name));
+			
+			// LOCATION
+			binaryWriter.Write(DumbCheck(-entries[i].transform.localPosition.x));
+			binaryWriter.Write(DumbCheck(entries[i].transform.localPosition.y));
+			binaryWriter.Write(DumbCheck(entries[i].transform.localPosition.z));
+			
+			// ORIENTATION
+			binaryWriter.Write(ClampRotation(DumbCheck(-entries[i].transform.localEulerAngles.y)));
+			
+			// COLLISION POINT 1
+			Transform transform1 = entries[i].transform.Find("Collision Points/Collision Point 1");
+			if (transform1 == null)
+			{
+				Debug.LogWarning("Collision Point 1 not found on " + entries[i].name);
+				binaryWriter.Write(0.0f);
+				binaryWriter.Write(0.0f);
+				binaryWriter.Write(0.0f);
+			}
+			else
+			{
+				binaryWriter.Write(DumbCheck(-transform1.localPosition.x));
+				binaryWriter.Write(DumbCheck(transform1.localPosition.y));
+				binaryWriter.Write(DumbCheck(transform1.localPosition.z));
+			}
+			
+			// COLLISION POINT 2
+			Transform transform2 = entries[i].transform.Find("Collision Points/Collision Point 2");
+			if (transform2 == null)
+			{
+				Debug.LogWarning("Collision Point 2 not found on " + entries[i].name);
+				binaryWriter.Write(0.0f);
+				binaryWriter.Write(0.0f);
+				binaryWriter.Write(0.0f);
+			}
+			else
+			{
+				binaryWriter.Write(DumbCheck(-transform2.localPosition.x));
+				binaryWriter.Write(DumbCheck(transform2.localPosition.y));
+				binaryWriter.Write(DumbCheck(transform2.localPosition.z));
+			}
+			
+			// HEALTH
+			binaryWriter.Write(hives[i].health);
+			
+			// SPAWN ID
+			binaryWriter.Write(Utilities.StringToCharArray(hives[i].characterToSpawn));
+			
+			// MAX SPAWNS
+			binaryWriter.Write((byte)hives[i].maxSpawns);
+			// padding
+			binaryWriter.Write(new byte[3]);
+			
+			// SPAWN POINT
+			binaryWriter.Write(Utilities.StringToCharArray(hives[i].spawnPoint));
+		}
+		
+		// pointer thingy (lol)
+		binaryWriter.Write(8);
+		
+		// entry count (lol again)
+		binaryWriter.Write(1);
+		
+		// FOOTER
+		binaryWriter.Write(0xC0FFEE);
+		
+		// CONTINUED SHRUG
+		binaryWriter.Close();
+		fileStream.Close();
+		Debug.Log("Saved " + path);
+		
+		if (overwriteSlbInResources)
+		{
+			string path2 = Application.dataPath + "/Resources/" + gameVersion + "/levels/" + levelName + "/" + areaName + "/" + areaName + "_OBJ.slb";
+			File.Copy(path, path2, true);
+			Debug.Log("Copied to " + path2);
+		}
+	}
+	
+	#endregion
+	///////////////////////////////////////////////////////////////////
+	
 }
