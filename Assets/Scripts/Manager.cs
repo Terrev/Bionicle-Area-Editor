@@ -100,10 +100,7 @@ public class Manager : MonoBehaviour
 		{
 			// IDENTIFIER
 			// read the characters then turn them into a string we can use more easily
-			char[] charArray = new char[4];
-			charArray = binaryReader.ReadChars(4);
-			Array.Reverse(charArray);
-			string identifier = new string(charArray);
+			string identifier = Utilities.CharArrayToString(binaryReader.ReadChars(4));
 			
 			// LOCATION
 			Vector3 location = new Vector3(-binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
@@ -230,9 +227,7 @@ public class Manager : MonoBehaviour
 		for (int i = 0; i < entries.Count; i++)
 		{
 			// IDENTIFIER
-			char[] charArray = entries[i].name.ToCharArray(0, 4);
-			Array.Reverse(charArray);
-			binaryWriter.Write(charArray);
+			binaryWriter.Write(Utilities.StringToCharArray(entries[i].name));
 			
 			// LOCATION
 			binaryWriter.Write(DumbCheck(-entries[i].transform.localPosition.x));
@@ -377,10 +372,7 @@ public class Manager : MonoBehaviour
 		{
 			// IDENTIFIER
 			// read the characters then turn them into a string we can use more easily
-			char[] charArray = new char[4];
-			charArray = binaryReader.ReadChars(4);
-			Array.Reverse(charArray);
-			string identifier = new string(charArray);
+			string identifier = Utilities.CharArrayToString(binaryReader.ReadChars(4));
 			
 			// POSITION
 			Vector3 position = new Vector3(-binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
@@ -436,9 +428,7 @@ public class Manager : MonoBehaviour
 		for (int i = 0; i < entries.Count; i++)
 		{
 			// IDENTIFIER
-			char[] charArray = entries[i].name.ToCharArray(0, 4);
-			Array.Reverse(charArray);
-			binaryWriter.Write(charArray);
+			binaryWriter.Write(Utilities.StringToCharArray(entries[i].name));
 			
 			// POSITION
 			binaryWriter.Write(DumbCheck(-entries[i].transform.localPosition.x));
@@ -511,10 +501,7 @@ public class Manager : MonoBehaviour
 		{
 			// IDENTIFIER
 			// read the characters then turn them into a string we can use more easily
-			char[] charArray = new char[4];
-			charArray = binaryReader.ReadChars(4);
-			Array.Reverse(charArray);
-			string identifier = new string(charArray);
+			string identifier = Utilities.CharArrayToString(binaryReader.ReadChars(4));
 			
 			// POSITION
 			// some slb templates say position, others say location, doesn't matter but SHRUG
@@ -558,11 +545,7 @@ public class Manager : MonoBehaviour
 				fileStream.Seek(triggerBoxOffset, SeekOrigin.Begin);
 				for (int j = 0; j < triggerBoxEntryCount; j++)
 				{
-					char[] anotherCharArray = new char[4];
-					anotherCharArray = binaryReader.ReadChars(4);
-					Array.Reverse(anotherCharArray);
-					string triggerBox = new string(anotherCharArray);
-					triggerBoxes.Add(triggerBox);
+					triggerBoxes.Add(Utilities.CharArrayToString(binaryReader.ReadChars(4)));
 				}
 			}
 			*/
@@ -674,9 +657,7 @@ public class Manager : MonoBehaviour
 		for (int i = 0; i < entries.Count; i++)
 		{
 			// IDENTIFIER
-			char[] charArray = entries[i].name.ToCharArray(0, 4);
-			Array.Reverse(charArray);
-			binaryWriter.Write(charArray);
+			binaryWriter.Write(Utilities.StringToCharArray(entries[i].name));
 			
 			// POSITION
 			binaryWriter.Write(DumbCheck(-entries[i].transform.localPosition.x));
@@ -786,10 +767,7 @@ public class Manager : MonoBehaviour
 		{
 			// IDENTIFIER
 			// read the characters then turn them into a string we can use more easily
-			char[] charArray = new char[4];
-			charArray = binaryReader.ReadChars(4);
-			Array.Reverse(charArray);
-			string identifier = new string(charArray);
+			string identifier = Utilities.CharArrayToString(binaryReader.ReadChars(4));
 			
 			// POINT 1
 			Vector3 point1 = new Vector3(-binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
@@ -831,10 +809,7 @@ public class Manager : MonoBehaviour
 		{
 			// IDENTIFIER
 			// read the characters then turn them into a string we can use more easily
-			char[] charArray = new char[4];
-			charArray = binaryReader.ReadChars(4);
-			Array.Reverse(charArray);
-			string identifier = new string(charArray);
+			string identifier = Utilities.CharArrayToString(binaryReader.ReadChars(4));
 			
 			// POINTS
 			Vector3 point1 = new Vector3(-binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
@@ -846,20 +821,9 @@ public class Manager : MonoBehaviour
 			Vector3 planeNormal = new Vector3(-binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
 			
 			// AREA, START, LOOK
-			char[] charArray2 = new char[4];
-			charArray2 = binaryReader.ReadChars(4);
-			Array.Reverse(charArray2);
-			string area = new string(charArray2);
-			
-			char[] charArray3 = new char[4];
-			charArray3 = binaryReader.ReadChars(4);
-			Array.Reverse(charArray3);
-			string startPoint = new string(charArray3);
-			
-			char[] charArray4 = new char[4];
-			charArray4 = binaryReader.ReadChars(4);
-			Array.Reverse(charArray4);
-			string lookPoint = new string(charArray4);
+			string area = Utilities.CharArrayToString(binaryReader.ReadChars(4));
+			string startPoint = Utilities.CharArrayToString(binaryReader.ReadChars(4));
+			string lookPoint = Utilities.CharArrayToString(binaryReader.ReadChars(4));
 			
 			// INSTANTIATE IN SCENE
 			GameObject newGameObject = new GameObject(identifier);
@@ -994,9 +958,7 @@ public class Manager : MonoBehaviour
 		for (int i = 0; i < boxEntries.Count; i++)
 		{
 			// IDENTIFIER
-			char[] charArray = boxEntries[i].name.ToCharArray(0, 4);
-			Array.Reverse(charArray);
-			binaryWriter.Write(charArray);
+			binaryWriter.Write(Utilities.StringToCharArray(boxEntries[i].name));
 			
 			// AAAAAAAAAAAAA
 			binaryWriter.Write(DumbCheck(-boxTriggers[i].point1.localPosition.x));
@@ -1012,9 +974,7 @@ public class Manager : MonoBehaviour
 		for (int i = 0; i < planeEntries.Count; i++)
 		{
 			// IDENTIFIER
-			char[] charArray = planeEntries[i].name.ToCharArray(0, 4);
-			Array.Reverse(charArray);
-			binaryWriter.Write(charArray);
+			binaryWriter.Write(Utilities.StringToCharArray(planeEntries[i].name));
 			
 			// AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 			binaryWriter.Write(DumbCheck(-planeTriggers[i].point1.localPosition.x));
@@ -1037,18 +997,10 @@ public class Manager : MonoBehaviour
 			binaryWriter.Write(DumbCheck(planeTriggers[i].planeNormal.y));
 			binaryWriter.Write(DumbCheck(planeTriggers[i].planeNormal.z));
 			
-			// AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-			char[] charArray2 = planeTriggers[i].area.ToCharArray(0, 4);
-			Array.Reverse(charArray2);
-			binaryWriter.Write(charArray2);
-			
-			char[] charArray3 = planeTriggers[i].startPoint.ToCharArray(0, 4);
-			Array.Reverse(charArray3);
-			binaryWriter.Write(charArray3);
-			
-			char[] charArray4 = planeTriggers[i].lookPoint.ToCharArray(0, 4);
-			Array.Reverse(charArray4);
-			binaryWriter.Write(charArray4);
+			// a
+			binaryWriter.Write(Utilities.StringToCharArray(planeTriggers[i].area));
+			binaryWriter.Write(Utilities.StringToCharArray(planeTriggers[i].startPoint));
+			binaryWriter.Write(Utilities.StringToCharArray(planeTriggers[i].lookPoint));
 		}
 		
 		// pointer thingy (lol)

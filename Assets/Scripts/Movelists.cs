@@ -25,10 +25,7 @@ public class Movelists : MonoBehaviour
 		XmlDocument xmlDocument = new XmlDocument();
 		
 		// INITIAL DATA
-		char[] charArray = new char[4];
-		charArray = binaryReader.ReadChars(4);
-		Array.Reverse(charArray);
-		string id = new string(charArray);
+		string id = Utilities.CharArrayToString(binaryReader.ReadChars(4));
 		
 		XmlElement root = xmlDocument.CreateElement("movelist");
 		root.SetAttribute("id", id);
@@ -51,16 +48,10 @@ public class Movelists : MonoBehaviour
 			XmlElement entry = xmlDocument.CreateElement("entry");
 			table1.AppendChild(entry);
 			
-			char[] charArray1 = new char[4];
-			charArray1 = binaryReader.ReadChars(4);
-			Array.Reverse(charArray1);
-			string id1 = new string(charArray1);
+			string id1 = Utilities.CharArrayToString(binaryReader.ReadChars(4));
 			entry.SetAttribute("id_1", id1);
 			
-			char[] charArray2 = new char[4];
-			charArray2 = binaryReader.ReadChars(4);
-			Array.Reverse(charArray2);
-			string id2 = new string(charArray2);
+			string id2 = Utilities.CharArrayToString(binaryReader.ReadChars(4));
 			entry.SetAttribute("id_2", id2);
 			
 			UInt16 flags1 = binaryReader.ReadUInt16();
@@ -99,11 +90,7 @@ public class Movelists : MonoBehaviour
 				UInt32 input = binaryReader.ReadUInt32();
 				splitTrigger.SetAttribute("input", Convert.ToString(input, 2).PadLeft(32, '0'));
 				
-				// this is getting ridiculous
-				char[] charArray3 = new char[4];
-				charArray3 = binaryReader.ReadChars(4);
-				Array.Reverse(charArray3);
-				string id3 = new string(charArray3);
+				string id3 = Utilities.CharArrayToString(binaryReader.ReadChars(4));
 				splitTrigger.SetAttribute("id", id3);
 				
 				float sFloat1 = binaryReader.ReadSingle();
@@ -133,16 +120,10 @@ public class Movelists : MonoBehaviour
 			XmlElement entry = xmlDocument.CreateElement("entry");
 			table2.AppendChild(entry);
 			
-			char[] charArray1 = new char[4];
-			charArray1 = binaryReader.ReadChars(4);
-			Array.Reverse(charArray1);
-			string id1 = new string(charArray1);
+			string id1 = Utilities.CharArrayToString(binaryReader.ReadChars(4));
 			entry.SetAttribute("id_1", id1);
 			
-			char[] charArray2 = new char[4];
-			charArray2 = binaryReader.ReadChars(4);
-			Array.Reverse(charArray2);
-			string id2 = new string(charArray2);
+			string id2 = Utilities.CharArrayToString(binaryReader.ReadChars(4));
 			entry.SetAttribute("id_2", id2);
 			
 			UInt16 flags1 = binaryReader.ReadUInt16();
@@ -185,11 +166,7 @@ public class Movelists : MonoBehaviour
 				UInt32 input = binaryReader.ReadUInt32();
 				splitTrigger.SetAttribute("input", Convert.ToString(input, 2).PadLeft(32, '0'));
 				
-				// this is getting ridiculous
-				char[] charArray3 = new char[4];
-				charArray3 = binaryReader.ReadChars(4);
-				Array.Reverse(charArray3);
-				string id3 = new string(charArray3);
+				string id3 = Utilities.CharArrayToString(binaryReader.ReadChars(4));
 				splitTrigger.SetAttribute("id", id3);
 				
 				float sFloat1 = binaryReader.ReadSingle();
@@ -254,9 +231,7 @@ public class Movelists : MonoBehaviour
 		
 		// ID
 		XmlElement root = (XmlElement)xmlDocument.DocumentElement;
-		char[] charArray = root.Attributes["id"].Value.ToCharArray(0, 4);
-		Array.Reverse(charArray);
-		binaryWriter.Write(charArray);
+		binaryWriter.Write(Utilities.StringToCharArray(root.Attributes["id"].Value));
 		
 		// TABLE 1
 		XmlElement table1 = (XmlElement)root.SelectSingleNode(".//table1");
@@ -276,13 +251,9 @@ public class Movelists : MonoBehaviour
 		// TABLE 1 CONTENTS
 		foreach (XmlNode movelistEntry in table1.ChildNodes)
 		{
-			char[] charArray1 = movelistEntry.Attributes["id_1"].Value.ToCharArray(0, 4);
-			Array.Reverse(charArray1);
-			binaryWriter.Write(charArray1);
+			binaryWriter.Write(Utilities.StringToCharArray(movelistEntry.Attributes["id_1"].Value));
 			
-			char[] charArray2 = movelistEntry.Attributes["id_2"].Value.ToCharArray(0, 4);
-			Array.Reverse(charArray2);
-			binaryWriter.Write(charArray2);
+			binaryWriter.Write(Utilities.StringToCharArray(movelistEntry.Attributes["id_2"].Value));
 			
 			binaryWriter.Write(Convert.ToUInt16(movelistEntry.Attributes["flags_1"].Value, 2));
 			
@@ -316,13 +287,9 @@ public class Movelists : MonoBehaviour
 		// TABLE 2 CONTENTS
 		foreach (XmlNode movelistEntry in table2.ChildNodes)
 		{
-			char[] charArray1 = movelistEntry.Attributes["id_1"].Value.ToCharArray(0, 4);
-			Array.Reverse(charArray1);
-			binaryWriter.Write(charArray1);
+			binaryWriter.Write(Utilities.StringToCharArray(movelistEntry.Attributes["id_1"].Value));
 			
-			char[] charArray2 = movelistEntry.Attributes["id_2"].Value.ToCharArray(0, 4);
-			Array.Reverse(charArray2);
-			binaryWriter.Write(charArray2);
+			binaryWriter.Write(Utilities.StringToCharArray(movelistEntry.Attributes["id_2"].Value));
 			
 			binaryWriter.Write(Convert.ToUInt16(movelistEntry.Attributes["flags_1"].Value, 2));
 			
@@ -364,9 +331,7 @@ public class Movelists : MonoBehaviour
 				{
 					binaryWriter.Write(Convert.ToUInt32(splitTriggerNode.Attributes["input"].Value, 2));
 					
-					char[] charArrayRegret = splitTriggerNode.Attributes["id"].Value.ToCharArray(0, 4);
-					Array.Reverse(charArrayRegret);
-					binaryWriter.Write(charArrayRegret);
+					binaryWriter.Write(Utilities.StringToCharArray(splitTriggerNode.Attributes["id"].Value));
 					
 					binaryWriter.Write(Convert.ToSingle(splitTriggerNode.Attributes["float_1"].Value));
 					
@@ -391,9 +356,7 @@ public class Movelists : MonoBehaviour
 				{
 					binaryWriter.Write(Convert.ToUInt32(splitTriggerNode.Attributes["input"].Value, 2));
 					
-					char[] charArrayRegret = splitTriggerNode.Attributes["id"].Value.ToCharArray(0, 4);
-					Array.Reverse(charArrayRegret);
-					binaryWriter.Write(charArrayRegret);
+					binaryWriter.Write(Utilities.StringToCharArray(splitTriggerNode.Attributes["id"].Value));
 					
 					binaryWriter.Write(Convert.ToSingle(splitTriggerNode.Attributes["float_1"].Value));
 					
