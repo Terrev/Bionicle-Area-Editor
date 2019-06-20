@@ -2,62 +2,60 @@
 using System.Collections;
 using UnityEditor;
 
-[CustomEditor(typeof(Manager))]
-// what a dumb class name
-public class ManagerEditor : Editor
+[CustomEditor(typeof(Areas))]
+public class AreasEditor : Editor
 {
 	public override void OnInspectorGUI()
 	{
+		Areas areas = (Areas)target;
 		DrawDefaultInspector();
 		GUILayout.Space(10);
-		
-		Manager manager = (Manager)target;
 		/*
 		if (GUILayout.Button("Test"))
 		{
-			manager.LoadEntireGame();
+			areas.LoadEntireGame();
 		}
 		*/
 		if (GUILayout.Button("Load Objects SLB"))
 		{
-			manager.LoadObjSlb();
+			areas.LoadObjSlb();
 		}
 		if (GUILayout.Button("Load Positions SLB"))
 		{
-			manager.LoadPosSlb();
+			areas.LoadPosSlb();
 		}
 		if (GUILayout.Button("Load Characters SLB"))
 		{
-			manager.LoadCharSlb();
+			areas.LoadCharSlb();
 		}
 		if (GUILayout.Button("Load Triggers SLB"))
 		{
-			manager.LoadTriggerSlb();
+			areas.LoadTriggerSlb();
 		}
 		if (GUILayout.Button("Load Hives SLB"))
 		{
-			manager.LoadHiveSlb();
+			areas.LoadHiveSlb();
 		}
 		GUILayout.Space(10);
 		if (GUILayout.Button("Save Objects SLB"))
 		{
-			manager.SaveObjSlb();
+			areas.SaveObjSlb();
 		}
 		if (GUILayout.Button("Save Positions SLB"))
 		{
-			manager.SavePosSlb();
+			areas.SavePosSlb();
 		}
 		if (GUILayout.Button("Save Characters SLB"))
 		{
-			manager.SaveCharSlb();
+			areas.SaveCharSlb();
 		}
 		if (GUILayout.Button("Save Triggers SLB"))
 		{
-			manager.SaveTriggerSlb();
+			areas.SaveTriggerSlb();
 		}
 		if (GUILayout.Button("Save Hives SLB"))
 		{
-			manager.SaveHiveSlb();
+			areas.SaveHiveSlb();
 		}
 	}
 }

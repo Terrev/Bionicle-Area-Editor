@@ -9,7 +9,7 @@ using System.Xml;
 
 // whaaaaaaaaaateverrrrrrrrrr
 
-public class Movelists : MonoBehaviour
+public class Characters : MonoBehaviour
 {
 	public void SlbToXml()
 	{

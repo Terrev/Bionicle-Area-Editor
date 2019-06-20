@@ -8,7 +8,7 @@ using System.Text;
 
 // I WOULD LIKE TO THANK MY CTRL, C, AND V KEYS FOR THEIR HARD WORK AND DEDICATION TO THIS PROJECT
 
-public class Manager : MonoBehaviour
+public class Areas : MonoBehaviour
 {
 	public string gameVersion = "beta";
 	public string levelName = "lev1";

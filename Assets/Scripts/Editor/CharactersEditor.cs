@@ -2,23 +2,23 @@
 using System.Collections;
 using UnityEditor;
 
-[CustomEditor(typeof(Movelists))]
-public class MovelistsEditor : Editor
+[CustomEditor(typeof(Characters))]
+public class CharactersEditor : Editor
 {
 	public override void OnInspectorGUI()
 	{
 		DrawDefaultInspector();
 		GUILayout.Space(10);
 		
-		Movelists movelists = (Movelists)target;
+		Characters characters = (Characters)target;
 		
 		if (GUILayout.Button("Movelist SLB to XML"))
 		{
-			movelists.SlbToXml();
+			characters.SlbToXml();
 		}
 		if (GUILayout.Button("Movelist XML to SLB"))
 		{
-			movelists.XmlToSlb();
+			characters.XmlToSlb();
 		}
 	}
 }
