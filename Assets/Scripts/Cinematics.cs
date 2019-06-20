@@ -6,8 +6,6 @@ using System;
 using System.IO;
 using System.Text;
 
-// WIP WIP WIP WIP WIP WIP
-
 public class Cinematics : MonoBehaviour
 {
 	public string gameVersion = "beta";
