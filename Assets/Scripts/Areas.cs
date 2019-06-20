@@ -99,7 +99,6 @@ public class Areas : MonoBehaviour
 		for (int i = 0; i < entryCount; i++)
 		{
 			// IDENTIFIER
-			// read the characters then turn them into a string we can use more easily
 			string identifier = Utilities.CharArrayToString(binaryReader.ReadChars(4));
 			
 			// LOCATION
@@ -230,14 +229,14 @@ public class Areas : MonoBehaviour
 			binaryWriter.Write(Utilities.StringToCharArray(entries[i].name));
 			
 			// LOCATION
-			binaryWriter.Write(DumbCheck(-entries[i].transform.localPosition.x));
-			binaryWriter.Write(DumbCheck(entries[i].transform.localPosition.y));
-			binaryWriter.Write(DumbCheck(entries[i].transform.localPosition.z));
+			binaryWriter.Write(Utilities.DumbCheck(-entries[i].transform.localPosition.x));
+			binaryWriter.Write(Utilities.DumbCheck(entries[i].transform.localPosition.y));
+			binaryWriter.Write(Utilities.DumbCheck(entries[i].transform.localPosition.z));
 			
 			// ORIENTATION
-			binaryWriter.Write(ClampRotation(DumbCheck(entries[i].transform.localEulerAngles.x)));
-			binaryWriter.Write(ClampRotation(DumbCheck(-entries[i].transform.localEulerAngles.y)));
-			binaryWriter.Write(ClampRotation(DumbCheck(-entries[i].transform.localEulerAngles.z)));
+			binaryWriter.Write(Utilities.ClampRotation(Utilities.DumbCheck(entries[i].transform.localEulerAngles.x)));
+			binaryWriter.Write(Utilities.ClampRotation(Utilities.DumbCheck(-entries[i].transform.localEulerAngles.y)));
+			binaryWriter.Write(Utilities.ClampRotation(Utilities.DumbCheck(-entries[i].transform.localEulerAngles.z)));
 			
 			// UNKNOWN
 			binaryWriter.Write(bionicleObjects[i].unknown);
@@ -252,9 +251,9 @@ public class Areas : MonoBehaviour
 			}
 			else
 			{
-				binaryWriter.Write(DumbCheck(-transform1.localPosition.x));
-				binaryWriter.Write(DumbCheck(transform1.localPosition.y));
-				binaryWriter.Write(DumbCheck(transform1.localPosition.z));
+				binaryWriter.Write(Utilities.DumbCheck(-transform1.localPosition.x));
+				binaryWriter.Write(Utilities.DumbCheck(transform1.localPosition.y));
+				binaryWriter.Write(Utilities.DumbCheck(transform1.localPosition.z));
 			}
 			
 			// COLLISION POINT 2
@@ -267,9 +266,9 @@ public class Areas : MonoBehaviour
 			}
 			else
 			{
-				binaryWriter.Write(DumbCheck(-transform2.localPosition.x));
-				binaryWriter.Write(DumbCheck(transform2.localPosition.y));
-				binaryWriter.Write(DumbCheck(transform2.localPosition.z));
+				binaryWriter.Write(Utilities.DumbCheck(-transform2.localPosition.x));
+				binaryWriter.Write(Utilities.DumbCheck(transform2.localPosition.y));
+				binaryWriter.Write(Utilities.DumbCheck(transform2.localPosition.z));
 			}
 			
 			// FLAGS
@@ -299,38 +298,6 @@ public class Areas : MonoBehaviour
 			File.Copy(path, path2, true);
 			Debug.Log("Copied to " + path2);
 		}
-	}
-	
-	// get rid of -0s unity may introduce
-	float DumbCheck(float input)
-	{
-		if (input == -0.0f)
-		{
-			return 0.0f;
-		}
-		else
-		{
-			return input;
-		}
-	}
-	
-	// clamp rotation values to avoid weird numbers - highest object rotation value in the vanilla game is 170, lowest is -90, unity sometimes gives values like -302.5 instead of the original 57.5
-	float ClampRotation(float input)
-	{
-		if (input > 360.0f || input < -360.0f)
-		{
-			Debug.LogWarning("lol wtf is this rotation, lemme know if you see this");
-			return input;
-		}
-		if (input > 180.0f)
-		{
-			return input - 360.0f;
-		}
-		if (input < -180.0f)
-		{
-			return input + 360.0f;
-		}
-		return input;
 	}
 	
 	#endregion
@@ -371,7 +338,6 @@ public class Areas : MonoBehaviour
 		for (int i = 0; i < entryCount; i++)
 		{
 			// IDENTIFIER
-			// read the characters then turn them into a string we can use more easily
 			string identifier = Utilities.CharArrayToString(binaryReader.ReadChars(4));
 			
 			// POSITION
@@ -431,9 +397,9 @@ public class Areas : MonoBehaviour
 			binaryWriter.Write(Utilities.StringToCharArray(entries[i].name));
 			
 			// POSITION
-			binaryWriter.Write(DumbCheck(-entries[i].transform.localPosition.x));
-			binaryWriter.Write(DumbCheck(entries[i].transform.localPosition.y));
-			binaryWriter.Write(DumbCheck(entries[i].transform.localPosition.z));
+			binaryWriter.Write(Utilities.DumbCheck(-entries[i].transform.localPosition.x));
+			binaryWriter.Write(Utilities.DumbCheck(entries[i].transform.localPosition.y));
+			binaryWriter.Write(Utilities.DumbCheck(entries[i].transform.localPosition.z));
 			
 			// FLAGS
 			string flagsString = entries[i].name.Substring(5, entries[i].name.Length - 5);
@@ -500,7 +466,6 @@ public class Areas : MonoBehaviour
 		for (int i = 0; i < entryCount; i++)
 		{
 			// IDENTIFIER
-			// read the characters then turn them into a string we can use more easily
 			string identifier = Utilities.CharArrayToString(binaryReader.ReadChars(4));
 			
 			// POSITION
@@ -584,6 +549,10 @@ public class Areas : MonoBehaviour
 			GameObject character = (GameObject)Resources.Load(gameVersion + "/characters/" + identifier + "/" + identifier, typeof(GameObject));
 			if (character == null)
 			{
+				character = (GameObject)Resources.Load(gameVersion + "/characters/" + identifier + "/Xs/" + identifier, typeof(GameObject));
+			}
+			if (character == null)
+			{
 				Debug.LogWarning("Could not load character model for " + identifier);
 				newGameObject = Instantiate(Resources.Load("_Editor/Character Marker", typeof(GameObject)), position, Quaternion.identity, slbParent.transform) as GameObject;
 				newGameObject.name = identifier;
@@ -660,9 +629,9 @@ public class Areas : MonoBehaviour
 			binaryWriter.Write(Utilities.StringToCharArray(entries[i].name));
 			
 			// POSITION
-			binaryWriter.Write(DumbCheck(-entries[i].transform.localPosition.x));
-			binaryWriter.Write(DumbCheck(entries[i].transform.localPosition.y));
-			binaryWriter.Write(DumbCheck(entries[i].transform.localPosition.z));
+			binaryWriter.Write(Utilities.DumbCheck(-entries[i].transform.localPosition.x));
+			binaryWriter.Write(Utilities.DumbCheck(entries[i].transform.localPosition.y));
+			binaryWriter.Write(Utilities.DumbCheck(entries[i].transform.localPosition.z));
 			
 			// ORIENTATION (unused)
 			binaryWriter.Write(bionicleCharacters[i].unusedOrientation.x);
@@ -766,7 +735,6 @@ public class Areas : MonoBehaviour
 		for (int i = 0; i < boxEntryCount; i++)
 		{
 			// IDENTIFIER
-			// read the characters then turn them into a string we can use more easily
 			string identifier = Utilities.CharArrayToString(binaryReader.ReadChars(4));
 			
 			// POINT 1
@@ -808,7 +776,6 @@ public class Areas : MonoBehaviour
 		for (int i = 0; i < planeEntryCount; i++)
 		{
 			// IDENTIFIER
-			// read the characters then turn them into a string we can use more easily
 			string identifier = Utilities.CharArrayToString(binaryReader.ReadChars(4));
 			
 			// POINTS
@@ -961,13 +928,13 @@ public class Areas : MonoBehaviour
 			binaryWriter.Write(Utilities.StringToCharArray(boxEntries[i].name));
 			
 			// AAAAAAAAAAAAA
-			binaryWriter.Write(DumbCheck(-boxTriggers[i].point1.localPosition.x));
-			binaryWriter.Write(DumbCheck(boxTriggers[i].point1.localPosition.y));
-			binaryWriter.Write(DumbCheck(boxTriggers[i].point1.localPosition.z));
+			binaryWriter.Write(Utilities.DumbCheck(-boxTriggers[i].point1.localPosition.x));
+			binaryWriter.Write(Utilities.DumbCheck(boxTriggers[i].point1.localPosition.y));
+			binaryWriter.Write(Utilities.DumbCheck(boxTriggers[i].point1.localPosition.z));
 			
-			binaryWriter.Write(DumbCheck(-boxTriggers[i].point2.localPosition.x));
-			binaryWriter.Write(DumbCheck(boxTriggers[i].point2.localPosition.y));
-			binaryWriter.Write(DumbCheck(boxTriggers[i].point2.localPosition.z));
+			binaryWriter.Write(Utilities.DumbCheck(-boxTriggers[i].point2.localPosition.x));
+			binaryWriter.Write(Utilities.DumbCheck(boxTriggers[i].point2.localPosition.y));
+			binaryWriter.Write(Utilities.DumbCheck(boxTriggers[i].point2.localPosition.z));
 		}
 		
 		// PLANE ENTRIES
@@ -977,25 +944,25 @@ public class Areas : MonoBehaviour
 			binaryWriter.Write(Utilities.StringToCharArray(planeEntries[i].name));
 			
 			// AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-			binaryWriter.Write(DumbCheck(-planeTriggers[i].point1.localPosition.x));
-			binaryWriter.Write(DumbCheck(planeTriggers[i].point1.localPosition.y));
-			binaryWriter.Write(DumbCheck(planeTriggers[i].point1.localPosition.z));
+			binaryWriter.Write(Utilities.DumbCheck(-planeTriggers[i].point1.localPosition.x));
+			binaryWriter.Write(Utilities.DumbCheck(planeTriggers[i].point1.localPosition.y));
+			binaryWriter.Write(Utilities.DumbCheck(planeTriggers[i].point1.localPosition.z));
 			
-			binaryWriter.Write(DumbCheck(-planeTriggers[i].point2.localPosition.x));
-			binaryWriter.Write(DumbCheck(planeTriggers[i].point2.localPosition.y));
-			binaryWriter.Write(DumbCheck(planeTriggers[i].point2.localPosition.z));
+			binaryWriter.Write(Utilities.DumbCheck(-planeTriggers[i].point2.localPosition.x));
+			binaryWriter.Write(Utilities.DumbCheck(planeTriggers[i].point2.localPosition.y));
+			binaryWriter.Write(Utilities.DumbCheck(planeTriggers[i].point2.localPosition.z));
 			
-			binaryWriter.Write(DumbCheck(-planeTriggers[i].point3.localPosition.x));
-			binaryWriter.Write(DumbCheck(planeTriggers[i].point3.localPosition.y));
-			binaryWriter.Write(DumbCheck(planeTriggers[i].point3.localPosition.z));
+			binaryWriter.Write(Utilities.DumbCheck(-planeTriggers[i].point3.localPosition.x));
+			binaryWriter.Write(Utilities.DumbCheck(planeTriggers[i].point3.localPosition.y));
+			binaryWriter.Write(Utilities.DumbCheck(planeTriggers[i].point3.localPosition.z));
 			
-			binaryWriter.Write(DumbCheck(-planeTriggers[i].point4.localPosition.x));
-			binaryWriter.Write(DumbCheck(planeTriggers[i].point4.localPosition.y));
-			binaryWriter.Write(DumbCheck(planeTriggers[i].point4.localPosition.z));
+			binaryWriter.Write(Utilities.DumbCheck(-planeTriggers[i].point4.localPosition.x));
+			binaryWriter.Write(Utilities.DumbCheck(planeTriggers[i].point4.localPosition.y));
+			binaryWriter.Write(Utilities.DumbCheck(planeTriggers[i].point4.localPosition.z));
 			
-			binaryWriter.Write(DumbCheck(-planeTriggers[i].planeNormal.x));
-			binaryWriter.Write(DumbCheck(planeTriggers[i].planeNormal.y));
-			binaryWriter.Write(DumbCheck(planeTriggers[i].planeNormal.z));
+			binaryWriter.Write(Utilities.DumbCheck(-planeTriggers[i].planeNormal.x));
+			binaryWriter.Write(Utilities.DumbCheck(planeTriggers[i].planeNormal.y));
+			binaryWriter.Write(Utilities.DumbCheck(planeTriggers[i].planeNormal.z));
 			
 			// a
 			binaryWriter.Write(Utilities.StringToCharArray(planeTriggers[i].area));
@@ -1065,7 +1032,6 @@ public class Areas : MonoBehaviour
 		for (int i = 0; i < entryCount; i++)
 		{
 			// IDENTIFIER
-			// read the characters then turn them into a string we can use more easily
 			string identifier = Utilities.CharArrayToString(binaryReader.ReadChars(4));
 			
 			// POSITION
@@ -1201,12 +1167,12 @@ public class Areas : MonoBehaviour
 			binaryWriter.Write(Utilities.StringToCharArray(entries[i].name));
 			
 			// LOCATION
-			binaryWriter.Write(DumbCheck(-entries[i].transform.localPosition.x));
-			binaryWriter.Write(DumbCheck(entries[i].transform.localPosition.y));
-			binaryWriter.Write(DumbCheck(entries[i].transform.localPosition.z));
+			binaryWriter.Write(Utilities.DumbCheck(-entries[i].transform.localPosition.x));
+			binaryWriter.Write(Utilities.DumbCheck(entries[i].transform.localPosition.y));
+			binaryWriter.Write(Utilities.DumbCheck(entries[i].transform.localPosition.z));
 			
 			// ORIENTATION
-			binaryWriter.Write(ClampRotation(DumbCheck(-entries[i].transform.localEulerAngles.y)));
+			binaryWriter.Write(Utilities.ClampRotation(Utilities.DumbCheck(-entries[i].transform.localEulerAngles.y)));
 			
 			// COLLISION POINT 1
 			Transform transform1 = entries[i].transform.Find("Collision Points/Collision Point 1");
@@ -1219,9 +1185,9 @@ public class Areas : MonoBehaviour
 			}
 			else
 			{
-				binaryWriter.Write(DumbCheck(-transform1.localPosition.x));
-				binaryWriter.Write(DumbCheck(transform1.localPosition.y));
-				binaryWriter.Write(DumbCheck(transform1.localPosition.z));
+				binaryWriter.Write(Utilities.DumbCheck(-transform1.localPosition.x));
+				binaryWriter.Write(Utilities.DumbCheck(transform1.localPosition.y));
+				binaryWriter.Write(Utilities.DumbCheck(transform1.localPosition.z));
 			}
 			
 			// COLLISION POINT 2
@@ -1235,9 +1201,9 @@ public class Areas : MonoBehaviour
 			}
 			else
 			{
-				binaryWriter.Write(DumbCheck(-transform2.localPosition.x));
-				binaryWriter.Write(DumbCheck(transform2.localPosition.y));
-				binaryWriter.Write(DumbCheck(transform2.localPosition.z));
+				binaryWriter.Write(Utilities.DumbCheck(-transform2.localPosition.x));
+				binaryWriter.Write(Utilities.DumbCheck(transform2.localPosition.y));
+				binaryWriter.Write(Utilities.DumbCheck(transform2.localPosition.z));
 			}
 			
 			// HEALTH

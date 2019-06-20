@@ -17,7 +17,7 @@ public class CinematicsEditor : Editor
 		//GUILayout.Space(10);
 		if (GUILayout.Button("Save Cinematic Characters SLB"))
 		{
-			//cinematics.SaveCinCharSlb();
+			cinematics.SaveCinCharSlb();
 		}
 	}
 }

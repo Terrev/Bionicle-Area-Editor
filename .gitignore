@@ -5,6 +5,7 @@
 [Bb]uilds/
 Assets/AssetStoreTools*
 Assets/Resources/alpha/characters/*
+Assets/Resources/alpha/cinematics/*
 Assets/Resources/alpha/levels/*
 Assets/Resources/beta/characters/*
 Assets/Resources/beta/levels/*

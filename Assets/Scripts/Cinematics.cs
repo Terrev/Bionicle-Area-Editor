@@ -22,6 +22,10 @@ public class Cinematics : MonoBehaviour
 	{
 		// PREPARE FOR FILE READING
 		string path = Application.dataPath + "/Resources/" + gameVersion + "/levels/" + levelName + "/" + levelName + "/" + cinematicName + "_CHAR.slb";
+		if (gameVersion.Equals("alpha", StringComparison.OrdinalIgnoreCase))
+		{
+			path = Application.dataPath + "/Resources/" + gameVersion + "/cinematics/" + levelName + "/" + cinematicName + "_CHAR.slb";
+		}
 		if (!File.Exists(path))
 		{
 			Debug.LogError("File not found: " + path);
@@ -34,9 +38,6 @@ public class Cinematics : MonoBehaviour
 		// doing this after opening the file so we don't just get an empty gameobject if we entered an invalid name or something
 		GameObject slbParent = new GameObject(cinematicName + "_CHAR.slb");
 		
-		// SKIP UNNEEDED/UNUSED STUFF AT START OF FILE
-		binaryReader.BaseStream.Position = 4;
-		
 		// READ BASIC INFO
 		UInt32 entryCount = binaryReader.ReadUInt32();
 		UInt32 tableOffset = binaryReader.ReadUInt32();
@@ -47,57 +48,65 @@ public class Cinematics : MonoBehaviour
 		// LOOP THROUGH ENTRIES
 		for (int i = 0; i < entryCount; i++)
 		{
-			// IDENTIFIER
-			// read the characters then turn them into a string we can use more easily
-			string identifier = Utilities.CharArrayToString(binaryReader.ReadChars(4));
+			// ANIM HIERARCHY
+			string animHierarchy = Utilities.CharArrayToString(binaryReader.ReadChars(4));
 			
-			// POSITION
-			// some slb templates say position, others say location, doesn't matter but SHRUG
-			Vector3 position = new Vector3(-binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
+			// CHARACTER
+			string characterName = Utilities.CharArrayToString(binaryReader.ReadChars(4));
 			
-			// ORIENTATION
-			// apparently unread/unused for characters
-			Vector3 orientation = new Vector3(binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
+			// ANIM BAKED
+			string animBaked = Utilities.CharArrayToString(binaryReader.ReadChars(4));
 			
-			// UNKNOWN
-			// also unread
-			float unknown = binaryReader.ReadSingle();
-			
-			// TRIGGER BOX TABLE (lev1\hk01)
-			UInt32 triggerBoxEntryCountUnused = binaryReader.ReadUInt32();
-			UInt32 triggerBoxEntryCount = binaryReader.ReadUInt32();
-			UInt32 triggerBoxOffset = binaryReader.ReadUInt32();
-			if (triggerBoxEntryCountUnused != 0 || triggerBoxEntryCount != 0)
-			{
-				Debug.LogWarning("Trigger box data found for " + identifier + ", this data is not supported yet and will be lost if you re-save the file");
-			}
-			
-			// SPLINE PATHS TABLE (lev3\gly1, lev5\lep1)
-			UInt32 splinePathEntryCount = binaryReader.ReadUInt32();
-			UInt32 splinePathOffset = binaryReader.ReadUInt32();
-			if (splinePathEntryCount != 0)
-			{
-				Debug.LogWarning("Spline data found, this data is not supported yet and will be lost if you re-save the file");
-			}
+			// MASK SWITCH TIMES
+			float maskSwitchTime1 = binaryReader.ReadSingle();
+			float maskSwitchTime2 = binaryReader.ReadSingle();
 			
 			// PUT CHARACTER/MARKER IN SCENE
-			GameObject newGameObject;
-			GameObject character = (GameObject)Resources.Load(gameVersion + "/characters/" + identifier + "/" + identifier, typeof(GameObject));
-			if (character == null)
+			GameObject newGameObject = new GameObject(animHierarchy);
+			newGameObject.transform.parent = slbParent.transform;
+			// CINCHARACTER COMPONENT FOR EXTRA DATA
+			CinCharacter cinCharacter = newGameObject.AddComponent<CinCharacter>() as CinCharacter;
+			cinCharacter.characterName = characterName;
+			cinCharacter.animBaked = animBaked;
+			cinCharacter.maskSwitchTime1 = maskSwitchTime1;
+			cinCharacter.maskSwitchTime2 = maskSwitchTime2;
+			
+			// LOCATION TABLE TIME
+			UInt32 locationTableEntryCount = binaryReader.ReadUInt32();
+			UInt32 locationTableOffset = binaryReader.ReadUInt32();
+			long rememberMe = fileStream.Position;
+			fileStream.Seek(locationTableOffset, SeekOrigin.Begin);
+			for (int j = 0; j < locationTableEntryCount; j++)
 			{
-				Debug.LogWarning("Could not load character model for " + identifier);
-				newGameObject = Instantiate(Resources.Load("_Editor/Character Marker", typeof(GameObject)), position, Quaternion.identity, slbParent.transform) as GameObject;
-				newGameObject.name = identifier;
+				float time = binaryReader.ReadSingle();
+				Vector3 location = new Vector3(-binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
+				float orientationX = binaryReader.ReadSingle();
+				float orientationY = -binaryReader.ReadSingle();
+				float orientationZ = -binaryReader.ReadSingle();
+				
+				GameObject locationGameObject;
+				GameObject character = (GameObject)Resources.Load(gameVersion + "/characters/" + characterName + "/" + characterName, typeof(GameObject));
+				if (character == null)
+				{
+					character = (GameObject)Resources.Load(gameVersion + "/characters/" + characterName + "/Xs/" + characterName, typeof(GameObject));
+				}
+				if (character == null)
+				{
+					Debug.LogWarning("Could not load character model for " + characterName);
+					locationGameObject = Instantiate(Resources.Load("_Editor/Character Marker", typeof(GameObject)), location, Quaternion.Euler(new Vector3(0.0f, orientationY, 0.0f)), newGameObject.transform) as GameObject;
+					locationGameObject.name = "Location";
+				}
+				else
+				{
+					locationGameObject = Instantiate(character, location, Quaternion.Euler(new Vector3(0.0f, orientationY, 0.0f)), newGameObject.transform) as GameObject;
+					locationGameObject.name = "Location";
+				}
+				CinCharacterLocation cinCharacterLocation = locationGameObject.AddComponent<CinCharacterLocation>() as CinCharacterLocation;
+				cinCharacterLocation.time = time;
+				cinCharacterLocation.unusedOrientationX = orientationX;
+				cinCharacterLocation.unusedOrientationZ = orientationZ;
 			}
-			else
-			{
-				newGameObject = Instantiate(character, position, Quaternion.identity, slbParent.transform) as GameObject;
-				newGameObject.name = identifier;
-			}
-			// BIONICLECHARACTER COMPONENT FOR EXTRA DATA
-			BionicleCharacter bionicleCharacter = newGameObject.AddComponent<BionicleCharacter>() as BionicleCharacter;
-			bionicleCharacter.unusedOrientation = orientation;
-			bionicleCharacter.unknown = unknown;
+			fileStream.Seek(rememberMe, SeekOrigin.Begin);
 		}
 		// SHRUG
 		// some stackoverflow post said closing the reader SHOULD close the stream but I don't trust "should" enough lol
@@ -108,13 +117,12 @@ public class Cinematics : MonoBehaviour
 	
 	public void SaveCinCharSlb()
 	{
-		/*
 		// LOOK OVER SCENE AND ERROR CHECK
 		// get slb parent
-		GameObject parentGameObject = GameObject.Find("/" + areaName + "_CHAR.slb");
+		GameObject parentGameObject = GameObject.Find("/" + cinematicName + "_CHAR.slb");
 		if (parentGameObject == null)
 		{
-			Debug.LogError("Couldn't find GameObject named " + areaName + "_CHAR.slb");
+			Debug.LogError("Couldn't find GameObject named " + cinematicName + "_CHAR.slb");
 			return;
 		}
 		// grab the slb's gameobjects/entries
@@ -123,22 +131,33 @@ public class Cinematics : MonoBehaviour
 		{
 			entries.Add(entry.gameObject);
 		}
-		// make sure all entry gameobjects have BionicleCharacter components (and grab them all)
-		List<BionicleCharacter> bionicleCharacters = new List<BionicleCharacter>();
+		// make sure all entry gameobjects have CinCharacter components (and grab them all)
+		List<CinCharacter> cinCharacters = new List<CinCharacter>();
 		foreach (GameObject entry in entries)
 		{
-			BionicleCharacter bionicleCharacter = entry.GetComponent<BionicleCharacter>();
-			if (bionicleCharacter == null)
+			CinCharacter cinCharacter = entry.GetComponent<CinCharacter>();
+			if (cinCharacter == null)
 			{
-				Debug.LogWarning("No BionicleCharacter component on " + entry.name + ", adding default/empty component");
-				bionicleCharacter = entry.AddComponent<BionicleCharacter>();
+				Debug.LogError("No CinCharacter component on " + entry.name);
+				return;
 			}
-			bionicleCharacters.Add(bionicleCharacter);
+			cinCharacters.Add(cinCharacter);
+			
+			// error checking for CinCharacterLocation components too
+			foreach (Transform locationEntry in entry.transform)
+			{
+				CinCharacterLocation cinCharacterLocation = locationEntry.GetComponent<CinCharacterLocation>();
+				if (cinCharacterLocation == null)
+				{
+					Debug.LogError("No CinCharacterLocation component on " + entry.name + "/" + locationEntry.name);
+					return;
+				}
+			}
 		}
 		
 		// OK NOW FOR ACTUAL FILE STUFF
 		// GET FILE PATH
-		string path = EditorUtility.SaveFilePanel("Save SLB", "", areaName + "_CHAR.slb", "slb");
+		string path = EditorUtility.SaveFilePanel("Save SLB", "", cinematicName + "_CHAR.slb", "slb");
 		if (path.Length == 0)
 		{
 			return;
@@ -148,65 +167,75 @@ public class Cinematics : MonoBehaviour
 		FileStream fileStream = new FileStream(path, FileMode.Create);
 		BinaryWriter binaryWriter = new BinaryWriter(fileStream);
 		
-		binaryWriter.Write(entries.Count); // entry count (unused)
 		binaryWriter.Write(entries.Count); // entry count
-		binaryWriter.Write(12); // table offset
-		
-		// calculate for use later
-		int charTableLength = 12 + (entries.Count * 52); // 12 for initial data, and each entry is 52 long
+		binaryWriter.Write(8); // table offset
 		
 		// ENTRIES
+		int locationEntriesCount = 0;
 		for (int i = 0; i < entries.Count; i++)
 		{
-			// IDENTIFIER
+			// ANIM HIERARCHY
 			binaryWriter.Write(Utilities.StringToCharArray(entries[i].name));
 			
-			// POSITION
-			binaryWriter.Write(DumbCheck(-entries[i].transform.localPosition.x));
-			binaryWriter.Write(DumbCheck(entries[i].transform.localPosition.y));
-			binaryWriter.Write(DumbCheck(entries[i].transform.localPosition.z));
+			// CHARACTER
+			binaryWriter.Write(Utilities.StringToCharArray(cinCharacters[i].characterName));
 			
-			// ORIENTATION (unused)
-			binaryWriter.Write(bionicleCharacters[i].unusedOrientation.x);
-			binaryWriter.Write(bionicleCharacters[i].unusedOrientation.y);
-			binaryWriter.Write(bionicleCharacters[i].unusedOrientation.z);
+			// ANIM BAKED
+			binaryWriter.Write(Utilities.StringToCharArray(cinCharacters[i].animBaked));
 			
-			// UNKNOWN
-			binaryWriter.Write(bionicleCharacters[i].unknown);
+			// MASK SWITCH TIMES
+			binaryWriter.Write(cinCharacters[i].maskSwitchTime1);
+			binaryWriter.Write(cinCharacters[i].maskSwitchTime2);
 			
-			// TEMP TRIGGER BOXES
-			binaryWriter.Write(0); // entry count (unused)
-			binaryWriter.Write(0); // entry count
-			binaryWriter.Write(charTableLength); // offset points to end of character table/start of offset stuff to signify no data, according to shadowknight
-			
-			// TEMP SPLINE PATHS TABLE
-			binaryWriter.Write(0); // entry count
-			binaryWriter.Write(charTableLength); // same as before
-			
+			// LOCATION TABLE STUFF
+			// entry count
+			binaryWriter.Write(entries[i].transform.childCount);
+			// offset
+			binaryWriter.Write(8 + (entries.Count * 28) + (locationEntriesCount * 28)); // offset
+			locationEntriesCount += entries[i].transform.childCount;
+		}
+		
+		// ACTUAL LOCATION STUFF
+		foreach (GameObject entry in entries)
+		{
+			foreach (Transform locationEntry in entry.transform)
+			{
+				CinCharacterLocation cinCharacterLocation = locationEntry.GetComponent<CinCharacterLocation>();
+				
+				// TIME
+				binaryWriter.Write(cinCharacterLocation.time);
+				
+				// POSITION
+				binaryWriter.Write(Utilities.DumbCheck(-locationEntry.localPosition.x));
+				binaryWriter.Write(Utilities.DumbCheck(locationEntry.localPosition.y));
+				binaryWriter.Write(Utilities.DumbCheck(locationEntry.localPosition.z));
+				
+				// ORIENTATION
+				binaryWriter.Write(cinCharacterLocation.unusedOrientationX);
+				binaryWriter.Write(Utilities.ClampRotation(Utilities.DumbCheck(-locationEntry.localEulerAngles.y)));
+				binaryWriter.Write(-cinCharacterLocation.unusedOrientationZ);
+			}
 		}
 		
 		// pointers to offsets or whatever
 		
 		// character table offset
-		binaryWriter.Write(8);
+		binaryWriter.Write(4);
 		
-		// offsets for trigger box and spline path tables
-		// idk dude
+		// offsets
 		for (int j = 0; j < entries.Count; j++)
 		{
-			int offset = 12; // initial data
+			int offset = 8; // initial data
 			if (j > 0)
 			{
-				offset += j * 52; // skip forward as many entries as we need
+				offset += j * 28; // skip forward as many entries as we need
 			}
-			offset += 40; // entry data up to first offset
-			binaryWriter.Write(offset);
-			offset += 8; // onwards to the next offset
+			offset += 24; // entry data up to offset
 			binaryWriter.Write(offset);
 		}
 		
 		// offset entry count
-		binaryWriter.Write(1 + (entries.Count * 2));
+		binaryWriter.Write(1 + entries.Count);
 		
 		// FOOTER
 		binaryWriter.Write(0xC0FFEE);
@@ -218,11 +247,14 @@ public class Cinematics : MonoBehaviour
 		
 		if (overwriteSlbInResources)
 		{
-			string path2 = Application.dataPath + "/Resources/" + gameVersion + "/levels/" + levelName + "/" + areaName + "/" + areaName + "_CHAR.slb";
+			string path2 = Application.dataPath + "/Resources/" + gameVersion + "/levels/" + levelName + "/" + levelName + "/" + cinematicName + "_CHAR.slb";
+			if (gameVersion.Equals("alpha", StringComparison.OrdinalIgnoreCase))
+			{
+				path2 = Application.dataPath + "/Resources/" + gameVersion + "/cinematics/" + levelName + "/" + cinematicName + "_CHAR.slb";
+			}
 			File.Copy(path, path2, true);
 			Debug.Log("Copied to " + path2);
 		}
-		*/
 	}
 	
 	#endregion
