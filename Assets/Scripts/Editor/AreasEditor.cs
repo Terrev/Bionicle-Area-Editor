@@ -24,13 +24,17 @@ public class AreasEditor : Editor
 		{
 			areas.LoadPosSlb();
 		}
-		if (GUILayout.Button("Load Characters SLB"))
+		if (GUILayout.Button("Load Lights SLB"))
 		{
-			areas.LoadCharSlb();
+			areas.LoadLightSlb();
 		}
 		if (GUILayout.Button("Load Triggers SLB"))
 		{
 			areas.LoadTriggerSlb();
+		}
+		if (GUILayout.Button("Load Characters SLB"))
+		{
+			areas.LoadCharSlb();
 		}
 		if (GUILayout.Button("Load Hives SLB"))
 		{
@@ -45,13 +49,17 @@ public class AreasEditor : Editor
 		{
 			areas.SavePosSlb();
 		}
-		if (GUILayout.Button("Save Characters SLB"))
+		if (GUILayout.Button("Save Lights SLB"))
 		{
-			areas.SaveCharSlb();
+			areas.SaveLightSlb();
 		}
 		if (GUILayout.Button("Save Triggers SLB"))
 		{
 			areas.SaveTriggerSlb();
+		}
+		if (GUILayout.Button("Save Characters SLB"))
+		{
+			areas.SaveCharSlb();
 		}
 		if (GUILayout.Button("Save Hives SLB"))
 		{

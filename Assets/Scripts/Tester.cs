@@ -10,7 +10,7 @@ public class Tester : MonoBehaviour
 	
 	void Awake()
 	{
-		HiveTest();
+		LightTest();
 	}
 	
 	void ObjTest()
@@ -374,6 +374,65 @@ public class Tester : MonoBehaviour
 			{
 				Debug.LogError(tableCount + " " + path);
 			}
+			// SHRUUUUG
+			binaryReader.Close();
+			fileStream.Close();
+			Resources.UnloadUnusedAssets();
+			System.GC.Collect();
+		}
+		
+		File.WriteAllLines(Application.dataPath + "/Output.txt", stringsToWrite.ToArray());
+	}
+	
+	
+	void LightTest()
+	{
+		List<string> stringsToWrite = new List<string>();
+		
+		string[] paths = Directory.GetFiles(Application.dataPath + "/Resources", "*_LIGHT.slb", SearchOption.AllDirectories);
+		
+		foreach (string path in paths)
+		{
+			string fileName = Path.GetFileName(path);
+			
+			FileStream fileStream = new FileStream(path, FileMode.Open);
+			BinaryReader binaryReader = new BinaryReader(fileStream);
+			
+			// SKIP UNNEEDED/UNUSED STUFF AT START OF FILE
+			binaryReader.BaseStream.Position = 4;
+			
+			// READ BASIC INFO
+			UInt32 entryCount = binaryReader.ReadUInt32();
+			UInt32 tableOffset = binaryReader.ReadUInt32();
+			
+			// GO TO BEGINNING OF TABLE
+			fileStream.Seek(tableOffset, SeekOrigin.Begin);
+			
+			// LOOP THROUGH ENTRIES
+			for (int i = 0; i < entryCount; i++)
+			{
+				// IDENTIFIER
+				string identifier = Utilities.CharArrayToString(binaryReader.ReadChars(4));
+				
+				// POSITION
+				Vector3 position = new Vector3(-binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
+				
+				// BLAH BLAH LIGHTS BLAH
+				float intensity = binaryReader.ReadSingle();
+				float range = binaryReader.ReadSingle();
+				Color color = new Color(binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
+				
+				// FLAGS
+				UInt32 flags = binaryReader.ReadUInt32();
+				
+				if (flags != 96 && flags != 129)
+				{
+					string blah = path + " " + identifier + " " + flags;
+					Debug.Log(blah);
+					stringsToWrite.Add(blah);
+				}
+			}
+			
 			// SHRUUUUG
 			binaryReader.Close();
 			fileStream.Close();

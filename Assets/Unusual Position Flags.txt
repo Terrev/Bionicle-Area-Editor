@@ -1,3 +1,5 @@
+beta only, haven't tested alpha
+
 lev1\bugs	etb0	112
 lev1\bugs	etb1	112
 lev1\bugs	etb2	112

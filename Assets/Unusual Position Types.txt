@@ -1,3 +1,5 @@
+beta only, haven't tested alpha
+
 lev1\mud0 mudm 2080
 lev1\shrn pl00 8
 lev4\boss tr1a 4096

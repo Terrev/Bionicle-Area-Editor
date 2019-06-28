@@ -1,3 +1,5 @@
+this applies to both the alpha and beta
+
 lev1\hk01 1 TRIGGER BOX
 lev1\hk01 1 TRIGGER BOX
 lev1\hk01 2 TRIGGER BOX
