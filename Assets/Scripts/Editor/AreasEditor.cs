@@ -28,6 +28,10 @@ public class AreasEditor : Editor
 		{
 			areas.LoadLightSlb();
 		}
+		if (GUILayout.Button("Load Spotlights SLB"))
+		{
+			areas.LoadSpotSlb();
+		}
 		if (GUILayout.Button("Load Triggers SLB"))
 		{
 			areas.LoadTriggerSlb();
@@ -52,6 +56,10 @@ public class AreasEditor : Editor
 		if (GUILayout.Button("Save Lights SLB"))
 		{
 			areas.SaveLightSlb();
+		}
+		if (GUILayout.Button("Save Spotlights SLB"))
+		{
+			areas.SaveSpotSlb();
 		}
 		if (GUILayout.Button("Save Triggers SLB"))
 		{

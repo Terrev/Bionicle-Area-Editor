@@ -616,6 +616,180 @@ public class Areas : MonoBehaviour
 	
 	
 	///////////////////////////////////////////////////////////////////
+	#region SPOT
+	
+	public void LoadSpotSlb()
+	{
+		// PREPARE FOR FILE READING
+		string path = Application.dataPath + "/Resources/" + gameVersion + "/levels/" + levelName + "/" + areaName + "/" + areaName + "_SPOT.slb";
+		if (!File.Exists(path))
+		{
+			Debug.LogError("File not found: " + path);
+			return;
+		}
+		FileStream fileStream = new FileStream(path, FileMode.Open);
+		BinaryReader binaryReader = new BinaryReader(fileStream);
+		
+		// MAKE SLB PARENT GAMEOBJECT
+		// doing this after opening the file so we don't just get an empty gameobject if we entered an invalid name or something
+		GameObject slbParent = new GameObject(areaName + "_SPOT.slb");
+		
+		// SKIP UNNEEDED/UNUSED STUFF AT START OF FILE
+		binaryReader.BaseStream.Position = 4;
+		
+		// READ BASIC INFO
+		UInt32 entryCount = binaryReader.ReadUInt32();
+		UInt32 tableOffset = binaryReader.ReadUInt32();
+		
+		// GO TO BEGINNING OF TABLE
+		fileStream.Seek(tableOffset, SeekOrigin.Begin);
+		
+		// LOOP THROUGH ENTRIES
+		for (int i = 0; i < entryCount; i++)
+		{
+			// IDENTIFIER
+			string identifier = Utilities.CharArrayToString(binaryReader.ReadChars(4));
+			
+			// POSITION / DIRECTION
+			Vector3 position = new Vector3(-binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
+			Vector3 direction = new Vector3(-binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
+			
+			// BLAH BLAH LIGHTS BLAH
+			float intensity = binaryReader.ReadSingle();
+			Color color = new Color(binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
+			float theta = binaryReader.ReadSingle(); // INNER
+			float phi = binaryReader.ReadSingle(); // OUTER
+			float range = binaryReader.ReadSingle();
+			
+			// PUT MARKER IN SCENE
+			GameObject newGameObject = Instantiate(Resources.Load("_Editor/Spotlight Marker", typeof(GameObject)), position, Quaternion.identity, slbParent.transform) as GameObject;
+			newGameObject.name = identifier;
+			Transform directionMarker = newGameObject.transform.Find("Direction");
+			directionMarker.localPosition = direction;
+			BionicleSpotlight bionicleSpotlight = newGameObject.GetComponent<BionicleSpotlight>();
+			bionicleSpotlight.intensity = intensity;
+			bionicleSpotlight.color = color;
+			bionicleSpotlight.theta = theta;
+			bionicleSpotlight.phi = phi;
+			bionicleSpotlight.range = range;
+		}
+		// SHRUUUUG
+		binaryReader.Close();
+		fileStream.Close();
+		Debug.Log("Loaded " + path);
+	}
+	
+	public void SaveSpotSlb()
+	{
+		// LOOK OVER SCENE AND ERROR CHECK
+		// get slb parent
+		GameObject parentGameObject = GameObject.Find("/" + areaName + "_SPOT.slb");
+		if (parentGameObject == null)
+		{
+			Debug.LogError("Couldn't find GameObject named " + areaName + "_SPOT.slb");
+			return;
+		}
+		// grab the slb's gameobjects/entries
+		List<GameObject> entries = new List<GameObject>();
+		foreach (Transform entry in parentGameObject.transform)
+		{
+			entries.Add(entry.gameObject);
+		}
+		// components
+		List<BionicleSpotlight> bionicleSpotlights = new List<BionicleSpotlight>();
+		foreach (GameObject entry in entries)
+		{
+			BionicleSpotlight bionicleSpotlight = entry.GetComponent<BionicleSpotlight>();
+			if (bionicleSpotlight == null)
+			{
+				Debug.LogError("No BionicleSpotlight component on " + entry.name);
+				return;
+			}
+			bionicleSpotlights.Add(bionicleSpotlight);
+		}
+		
+		// OK NOW FOR ACTUAL FILE STUFF
+		// GET FILE PATH
+		string path = EditorUtility.SaveFilePanel("Save SLB", "", areaName + "_SPOT.slb", "slb");
+		if (path.Length == 0)
+		{
+			return;
+		}
+		
+		// WRITE THE FILE
+		FileStream fileStream = new FileStream(path, FileMode.Create);
+		BinaryWriter binaryWriter = new BinaryWriter(fileStream);
+		
+		binaryWriter.Write(entries.Count); // entry count (unused)
+		binaryWriter.Write(entries.Count); // entry count
+		binaryWriter.Write(12); // table offset
+		
+		// ENTRIES
+		for (int i = 0; i < entries.Count; i++)
+		{
+			// IDENTIFIER
+			binaryWriter.Write(Utilities.StringToCharArray(entries[i].name));
+			
+			// POSITION
+			binaryWriter.Write(Utilities.DumbCheck(-entries[i].transform.localPosition.x));
+			binaryWriter.Write(Utilities.DumbCheck(entries[i].transform.localPosition.y));
+			binaryWriter.Write(Utilities.DumbCheck(entries[i].transform.localPosition.z));
+			
+			// DIRECTION
+			Transform directionMarker = entries[i].transform.Find("Direction");
+			if (directionMarker == null)
+			{
+				Debug.LogWarning("Direction marker not found on " + entries[i].name);
+				binaryWriter.Write(-100.0f); // random values, whatever, shouldn't happen
+				binaryWriter.Write(-100.0f);
+				binaryWriter.Write(100.0f);
+			}
+			else
+			{
+				binaryWriter.Write(Utilities.DumbCheck(-directionMarker.localPosition.x));
+				binaryWriter.Write(Utilities.DumbCheck(directionMarker.localPosition.y));
+				binaryWriter.Write(Utilities.DumbCheck(directionMarker.localPosition.z));
+			}
+			
+			// YOU KNOW WHAT TO EXPECT
+			binaryWriter.Write(bionicleSpotlights[i].intensity);
+			binaryWriter.Write(bionicleSpotlights[i].color.r);
+			binaryWriter.Write(bionicleSpotlights[i].color.g);
+			binaryWriter.Write(bionicleSpotlights[i].color.b);
+			binaryWriter.Write(bionicleSpotlights[i].color.a);
+			binaryWriter.Write(bionicleSpotlights[i].theta);
+			binaryWriter.Write(bionicleSpotlights[i].phi);
+			binaryWriter.Write(bionicleSpotlights[i].range);
+			
+		}
+		
+		// pointer thingy (lol)
+		binaryWriter.Write(8);
+		
+		// entry count (lol again)
+		binaryWriter.Write(1);
+		
+		// FOOTER
+		binaryWriter.Write(0xC0FFEE);
+		
+		// CONTINUED SHRUG
+		binaryWriter.Close();
+		fileStream.Close();
+		Debug.Log("Saved " + path);
+		
+		if (overwriteSlbInResources)
+		{
+			string path2 = Application.dataPath + "/Resources/" + gameVersion + "/levels/" + levelName + "/" + areaName + "/" + areaName + "_SPOT.slb";
+			File.Copy(path, path2, true);
+			Debug.Log("Copied to " + path2);
+		}
+	}
+	#endregion
+	///////////////////////////////////////////////////////////////////
+	
+	
+	
+	///////////////////////////////////////////////////////////////////
 	#region TRIGGER
 	
 	public void LoadTriggerSlb()
