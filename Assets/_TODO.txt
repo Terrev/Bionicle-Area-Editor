@@ -1,4 +1,5 @@
-spotlights
+spotlights - mesh based visuals?
+see what's up with the sun flares in alpha lev1 bech/what determines them
 sounds
 extra char data
 splines (separate files, not just char data, need both in case they relate to each other in any way)
