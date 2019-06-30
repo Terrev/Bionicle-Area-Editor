@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[ExecuteInEditMode]
 public class BionicleSpotlight : MonoBehaviour
 {
 	public float intensity = 1.0f;
@@ -16,6 +17,15 @@ public class BionicleSpotlight : MonoBehaviour
 	
 	Color colorLastUpdate = Color.yellow;
 	Color colorWithoutAlpha = Color.yellow;
+	
+	void Update()
+	{
+		// don't rotate
+		if (transform.localRotation != Quaternion.identity)
+		{
+			transform.localRotation = Quaternion.identity;
+		}
+	}
 	
 	void OnDrawGizmos()
 	{
