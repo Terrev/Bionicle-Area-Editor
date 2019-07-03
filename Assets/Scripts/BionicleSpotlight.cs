@@ -25,7 +25,8 @@ public class BionicleSpotlight : MonoBehaviour
 	float intensityLastUpdate = 1.0f;
 	
 	Color colorLastUpdate = Color.yellow;
-	Color colorWithoutAlpha = Color.yellow;
+	[System.NonSerialized]
+	public Color colorWithoutAlpha = Color.yellow;
 	
 	void Update()
 	{
@@ -58,21 +59,25 @@ public class BionicleSpotlight : MonoBehaviour
 		if (thetaCone1 == null)
 		{
 			thetaCone1 = transform.Find("Ignore Me 1");
+			thetaCone1.gameObject.hideFlags = HideFlags.HideInHierarchy;
 		}
 		
 		if (thetaCone2 == null)
 		{
 			thetaCone2 = transform.Find("Ignore Me 2");
+			thetaCone2.gameObject.hideFlags = HideFlags.HideInHierarchy;
 		}
 		
 		if (phiCone1 == null)
 		{
 			phiCone1 = transform.Find("Ignore Me 3");
+			phiCone1.gameObject.hideFlags = HideFlags.HideInHierarchy;
 		}
 		
 		if (phiCone2 == null)
 		{
 			phiCone2 = transform.Find("Ignore Me 4");
+			phiCone2.gameObject.hideFlags = HideFlags.HideInHierarchy;
 		}
 		
 		if (lightMaterial == null)
@@ -86,7 +91,6 @@ public class BionicleSpotlight : MonoBehaviour
 		}
 		
 		Gizmos.color = colorWithoutAlpha;
-		
 		Gizmos.DrawLine(transform.position, directionMarker.position);
 		
 		// QUATERNION VERSION OF DIRECTION VECTOR
