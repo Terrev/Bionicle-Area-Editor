@@ -1602,4 +1602,204 @@ public class Areas : MonoBehaviour
 	#endregion
 	///////////////////////////////////////////////////////////////////
 	
+	
+	
+	///////////////////////////////////////////////////////////////////
+	#region SOUNDS
+	
+	public void LoadSoundsSlb()
+	{
+		// PREPARE FOR FILE READING
+		string path = Application.dataPath + "/Resources/" + gameVersion + "/levels/" + levelName + "/" + areaName + "/" + areaName + "_SOUNDS.slb";
+		if (!File.Exists(path))
+		{
+			Debug.LogError("File not found: " + path);
+			return;
+		}
+		FileStream fileStream = new FileStream(path, FileMode.Open);
+		BinaryReader binaryReader = new BinaryReader(fileStream);
+		
+		// MAKE SLB PARENT GAMEOBJECT
+		// doing this after opening the file so we don't just get an empty gameobject if we entered an invalid name or something
+		GameObject slbParent = new GameObject(areaName + "_SOUNDS.slb");
+		
+		// READ BASIC INFO
+		UInt32 entryCount = binaryReader.ReadUInt32();
+		UInt32 tableOffset = binaryReader.ReadUInt32();
+		
+		// GO TO BEGINNING OF TABLE
+		fileStream.Seek(tableOffset, SeekOrigin.Begin);
+		
+		// LOOP THROUGH ENTRIES
+		for (int i = 0; i < entryCount; i++)
+		{
+			// READ MAIN ENTRY
+			UInt32 filePathPointer = binaryReader.ReadUInt32();
+			string identifier = Utilities.CharArrayToString(binaryReader.ReadChars(4));
+			Int32 variety = binaryReader.ReadInt32();
+			UInt32 priority = binaryReader.ReadUInt32();
+			float volume = binaryReader.ReadSingle();
+			Int32 pitch = binaryReader.ReadInt32();
+			Vector3 position = new Vector3(-binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
+			Vector3 front = new Vector3(-binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
+			Int32 insideAngle = binaryReader.ReadInt32();
+			Int32 outsideAngle = binaryReader.ReadInt32();
+			float outsideVolume = binaryReader.ReadSingle();
+			float minDistance = binaryReader.ReadSingle();
+			float maxDistance = binaryReader.ReadSingle();
+			
+			// FILE NAME STRING
+			long rememberMe = fileStream.Position;
+			fileStream.Seek(filePathPointer, SeekOrigin.Begin);
+			byte stringLength = binaryReader.ReadByte();
+			string filePath = new string(binaryReader.ReadChars(stringLength));
+			fileStream.Seek(rememberMe, SeekOrigin.Begin);
+			
+			// PUT MARKER IN SCENE
+			GameObject newGameObject = Instantiate(Resources.Load("_Editor/Sound Marker", typeof(GameObject)), position, Quaternion.identity, slbParent.transform) as GameObject;
+			newGameObject.name = identifier;
+			BionicleSound bionicleSound = newGameObject.AddComponent<BionicleSound>() as BionicleSound;
+			bionicleSound.filePath = filePath;
+			bionicleSound.variety = variety;
+			bionicleSound.priority = (int)priority;
+			bionicleSound.volume = volume;
+			bionicleSound.pitch = pitch;
+			bionicleSound.front = front;
+			bionicleSound.insideAngle = insideAngle;
+			bionicleSound.outsideAngle = outsideAngle;
+			bionicleSound.outsideVolume = outsideVolume;
+			bionicleSound.minDistance = minDistance;
+			bionicleSound.maxDistance = maxDistance;
+		}
+		// SHRUUUUG
+		binaryReader.Close();
+		fileStream.Close();
+		Debug.Log("Loaded " + path);
+	}
+	
+	public void SaveSoundsSlb()
+	{
+		// LOOK OVER SCENE AND ERROR CHECK
+		// get slb parent
+		GameObject parentGameObject = GameObject.Find("/" + areaName + "_SOUNDS.slb");
+		if (parentGameObject == null)
+		{
+			Debug.LogError("Couldn't find GameObject named " + areaName + "_SOUNDS.slb");
+			return;
+		}
+		// grab the slb's gameobjects/entries
+		List<GameObject> entries = new List<GameObject>();
+		foreach (Transform entry in parentGameObject.transform)
+		{
+			entries.Add(entry.gameObject);
+		}
+		// component check
+		List<BionicleSound> bionicleSounds = new List<BionicleSound>();
+		foreach (GameObject entry in entries)
+		{
+			BionicleSound bionicleSound = entry.GetComponent<BionicleSound>();
+			if (bionicleSound == null)
+			{
+				Debug.LogError("No BionicleSound component on " + entry.name);
+				return;
+			}
+			bionicleSounds.Add(bionicleSound);
+		}
+		
+		// OK NOW FOR ACTUAL FILE STUFF
+		// GET FILE PATH
+		string path = EditorUtility.SaveFilePanel("Save SLB", "", areaName + "_SOUNDS.slb", "slb");
+		if (path.Length == 0)
+		{
+			return;
+		}
+		
+		// WRITE THE FILE
+		FileStream fileStream = new FileStream(path, FileMode.Create);
+		BinaryWriter binaryWriter = new BinaryWriter(fileStream);
+		
+		binaryWriter.Write(entries.Count); // entry count
+		binaryWriter.Write(8); // table offset
+		
+		// ENTRIES
+		for (int i = 0; i < entries.Count; i++)
+		{
+			// TEMP POINTER
+			binaryWriter.Write(0);
+			// IDENTIFIER
+			binaryWriter.Write(Utilities.StringToCharArray(entries[i].name));
+			binaryWriter.Write(bionicleSounds[i].variety);
+			binaryWriter.Write((UInt32)bionicleSounds[i].priority);
+			binaryWriter.Write(bionicleSounds[i].volume);
+			binaryWriter.Write(bionicleSounds[i].pitch);
+			// POSITION
+			binaryWriter.Write(Utilities.DumbCheck(-entries[i].transform.localPosition.x));
+			binaryWriter.Write(Utilities.DumbCheck(entries[i].transform.localPosition.y));
+			binaryWriter.Write(Utilities.DumbCheck(entries[i].transform.localPosition.z));
+			// FRONT
+			binaryWriter.Write(Utilities.DumbCheck(-bionicleSounds[i].front.x));
+			binaryWriter.Write(Utilities.DumbCheck(bionicleSounds[i].front.y));
+			binaryWriter.Write(Utilities.DumbCheck(bionicleSounds[i].front.z));
+			// BLAH
+			binaryWriter.Write(bionicleSounds[i].insideAngle);
+			binaryWriter.Write(bionicleSounds[i].outsideAngle);
+			binaryWriter.Write(bionicleSounds[i].outsideVolume);
+			binaryWriter.Write(bionicleSounds[i].minDistance);
+			binaryWriter.Write(bionicleSounds[i].maxDistance);
+		}
+		// FILE PATHS
+		List<long> offsets = new List<long>();
+		for (int i = 0; i < bionicleSounds.Count; i++)
+		{
+			offsets.Add(fileStream.Position);
+			char[] charArray = bionicleSounds[i].filePath.ToCharArray();
+			binaryWriter.Write((byte)charArray.Length);
+			binaryWriter.Write(charArray);
+			binaryWriter.Write((byte)0); // whatever lol
+		}
+		// GO BACK AND WRITE OFFSETS
+		fileStream.Seek(8, SeekOrigin.Begin);
+		for (int i = 0; i < entries.Count; i++)
+		{
+			binaryWriter.Write((Int32)offsets[i]);
+			fileStream.Seek(64, SeekOrigin.Current);
+		}
+		// pad to multiple of 4
+		fileStream.Seek(0, SeekOrigin.End);
+		binaryWriter.Write(new byte[fileStream.Length % 4]);
+		
+		// offset stuff
+		binaryWriter.Write(4);
+		for (int j = 0; j < entries.Count; j++)
+		{
+			int offset = 8; // initial data
+			if (j > 0)
+			{
+				offset += j * 68; // skip forward as many entries as we need
+			}
+			binaryWriter.Write(offset);
+		}
+		
+		// offset entry count
+		binaryWriter.Write(1 + (entries.Count));
+		
+		// FOOTER
+		binaryWriter.Write(0xC0FFEE);
+		
+		// CONTINUED SHRUG
+		binaryWriter.Close();
+		fileStream.Close();
+		Debug.Log("Saved " + path);
+		
+		if (overwriteSlbInResources)
+		{
+			string path2 = Application.dataPath + "/Resources/" + gameVersion + "/levels/" + levelName + "/" + areaName + "/" + areaName + "_SOUNDS.slb";
+			File.Copy(path, path2, true);
+			Debug.Log("Copied to " + path2);
+		}
+	}
+	
+	#endregion
+	///////////////////////////////////////////////////////////////////
+	
 }

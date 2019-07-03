@@ -44,6 +44,10 @@ public class AreasEditor : Editor
 		{
 			areas.LoadHiveSlb();
 		}
+		if (GUILayout.Button("Load Sounds SLB"))
+		{
+			areas.LoadSoundsSlb();
+		}
 		GUILayout.Space(10);
 		if (GUILayout.Button("Save Objects SLB"))
 		{
@@ -72,6 +76,10 @@ public class AreasEditor : Editor
 		if (GUILayout.Button("Save Hives SLB"))
 		{
 			areas.SaveHiveSlb();
+		}
+		if (GUILayout.Button("Save Sounds SLB"))
+		{
+			areas.SaveSoundsSlb();
 		}
 	}
 }
