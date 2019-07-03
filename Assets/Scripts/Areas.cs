@@ -110,25 +110,13 @@ public class Areas : MonoBehaviour
 		// LOOP THROUGH ENTRIES
 		for (int i = 0; i < entryCount; i++)
 		{
-			// IDENTIFIER
+			// READ DATA
 			string identifier = Utilities.CharArrayToString(binaryReader.ReadChars(4));
-			
-			// LOCATION
 			Vector3 location = new Vector3(-binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
-			
-			// ORIENTATION
 			Vector3 orientation = new Vector3(binaryReader.ReadSingle(), -binaryReader.ReadSingle(), -binaryReader.ReadSingle());
-			
-			// UNKNOWN
 			float unknown = binaryReader.ReadSingle();
-			
-			// COLLISION POINT 1
 			Vector3 collisionPoint1 = new Vector3(-binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
-			
-			// COLLISION POINT 2
 			Vector3 collisionPoint2 = new Vector3(-binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
-			
-			// FLAGS
 			UInt32 flags = binaryReader.ReadUInt32();
 			
 			// INSTANTIATE IN SCENE
@@ -349,13 +337,9 @@ public class Areas : MonoBehaviour
 		// LOOP THROUGH ENTRIES
 		for (int i = 0; i < entryCount; i++)
 		{
-			// IDENTIFIER
+			// READ DATA
 			string identifier = Utilities.CharArrayToString(binaryReader.ReadChars(4));
-			
-			// POSITION
 			Vector3 position = new Vector3(-binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
-			
-			// FLAGS
 			UInt32 flags = binaryReader.ReadUInt32();
 			
 			// PUT MARKER IN SCENE
@@ -477,13 +461,9 @@ public class Areas : MonoBehaviour
 		// LOOP THROUGH ENTRIES
 		for (int i = 0; i < entryCount; i++)
 		{
-			// IDENTIFIER
+			// READ DATA
 			string identifier = Utilities.CharArrayToString(binaryReader.ReadChars(4));
-			
-			// POSITION
 			Vector3 position = new Vector3(-binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
-			
-			// BLAH BLAH LIGHTS BLAH
 			float intensity = binaryReader.ReadSingle();
 			float range = binaryReader.ReadSingle();
 			Color color = new Color(binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
@@ -647,14 +627,10 @@ public class Areas : MonoBehaviour
 		// LOOP THROUGH ENTRIES
 		for (int i = 0; i < entryCount; i++)
 		{
-			// IDENTIFIER
+			// READ DATA
 			string identifier = Utilities.CharArrayToString(binaryReader.ReadChars(4));
-			
-			// POSITION / DIRECTION
 			Vector3 position = new Vector3(-binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
 			Vector3 direction = new Vector3(-binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
-			
-			// BLAH BLAH LIGHTS BLAH
 			float intensity = binaryReader.ReadSingle();
 			Color color = new Color(binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
 			float theta = binaryReader.ReadSingle(); // INNER
@@ -751,7 +727,7 @@ public class Areas : MonoBehaviour
 				binaryWriter.Write(Utilities.DumbCheck(directionMarker.localPosition.z));
 			}
 			
-			// YOU KNOW WHAT TO EXPECT
+			// BLAH BLAH
 			binaryWriter.Write(bionicleSpotlights[i].intensity);
 			binaryWriter.Write(bionicleSpotlights[i].color.r);
 			binaryWriter.Write(bionicleSpotlights[i].color.g);
@@ -827,13 +803,9 @@ public class Areas : MonoBehaviour
 		// LOOP THROUGH BOX ENTRIES
 		for (int i = 0; i < boxEntryCount; i++)
 		{
-			// IDENTIFIER
+			// READ DATA
 			string identifier = Utilities.CharArrayToString(binaryReader.ReadChars(4));
-			
-			// POINT 1
 			Vector3 point1 = new Vector3(-binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
-			
-			// POINT 2
 			Vector3 point2 = new Vector3(-binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
 			
 			// INSTANTIATE IN SCENE
@@ -868,19 +840,13 @@ public class Areas : MonoBehaviour
 		// LOOP THROUGH PLANE ENTRIES
 		for (int i = 0; i < planeEntryCount; i++)
 		{
-			// IDENTIFIER
+			// READ DATA
 			string identifier = Utilities.CharArrayToString(binaryReader.ReadChars(4));
-			
-			// POINTS
 			Vector3 point1 = new Vector3(-binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
 			Vector3 point2 = new Vector3(-binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
 			Vector3 point3 = new Vector3(-binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
 			Vector3 point4 = new Vector3(-binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
-			
-			// VECTOR THING?
 			Vector3 planeNormal = new Vector3(-binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
-			
-			// AREA, START, LOOK
 			string area = Utilities.CharArrayToString(binaryReader.ReadChars(4));
 			string startPoint = Utilities.CharArrayToString(binaryReader.ReadChars(4));
 			string lookPoint = Utilities.CharArrayToString(binaryReader.ReadChars(4));
@@ -1124,18 +1090,12 @@ public class Areas : MonoBehaviour
 		// LOOP THROUGH ENTRIES
 		for (int i = 0; i < entryCount; i++)
 		{
-			// IDENTIFIER
+			// READ DATA
 			string identifier = Utilities.CharArrayToString(binaryReader.ReadChars(4));
-			
-			// POSITION
 			// some slb templates say position, others say location, doesn't matter but SHRUG
 			Vector3 position = new Vector3(-binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
-			
-			// ORIENTATION
 			// apparently unread/unused for characters
 			Vector3 orientation = new Vector3(binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
-			
-			// UNKNOWN
 			// also unread
 			float unknown = binaryReader.ReadSingle();
 			
@@ -1308,7 +1268,6 @@ public class Areas : MonoBehaviour
 			// TEMP SPLINE PATHS TABLE
 			binaryWriter.Write(0); // entry count
 			binaryWriter.Write(charTableLength); // same as before
-			
 		}
 		
 		// pointers to offsets or whatever
@@ -1317,7 +1276,7 @@ public class Areas : MonoBehaviour
 		binaryWriter.Write(8);
 		
 		// offsets for trigger box and spline path tables
-		// idk dude
+		// welcome to magic number land
 		for (int j = 0; j < entries.Count; j++)
 		{
 			int offset = 12; // initial data
@@ -1387,33 +1346,16 @@ public class Areas : MonoBehaviour
 		// LOOP THROUGH ENTRIES
 		for (int i = 0; i < entryCount; i++)
 		{
-			// IDENTIFIER
+			// READ DATA
 			string identifier = Utilities.CharArrayToString(binaryReader.ReadChars(4));
-			
-			// POSITION
 			Vector3 position = new Vector3(-binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
-			
-			// ORIENTATION
 			float orientation = -binaryReader.ReadSingle();
-			
-			// COLLISION POINT 1
 			Vector3 collisionPoint1 = new Vector3(-binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
-			
-			// COLLISION POINT 2
 			Vector3 collisionPoint2 = new Vector3(-binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
-			
-			// HEALTH
 			Int32 health = binaryReader.ReadInt32();
-			
-			// SPAWN ID
 			string characterToSpawn = Utilities.CharArrayToString(binaryReader.ReadChars(4));
-			
-			// MAX SPAWNS
 			int maxSpawns = (int)binaryReader.ReadByte();
-			// padding
-			fileStream.Seek(3, SeekOrigin.Current);
-			
-			// PHYSICS GROUP ID
+			fileStream.Seek(3, SeekOrigin.Current); // padding
 			string spawnPoint = Utilities.CharArrayToString(binaryReader.ReadChars(4));
 			
 			// INSTANTIATE IN SCENE
@@ -1562,18 +1504,11 @@ public class Areas : MonoBehaviour
 				binaryWriter.Write(Utilities.DumbCheck(transform2.localPosition.z));
 			}
 			
-			// HEALTH
+			// ETC
 			binaryWriter.Write(hives[i].health);
-			
-			// SPAWN ID
 			binaryWriter.Write(Utilities.StringToCharArray(hives[i].characterToSpawn));
-			
-			// MAX SPAWNS
 			binaryWriter.Write((byte)hives[i].maxSpawns);
-			// padding
-			binaryWriter.Write(new byte[3]);
-			
-			// SPAWN POINT
+			binaryWriter.Write(new byte[3]); // padding
 			binaryWriter.Write(Utilities.StringToCharArray(hives[i].spawnPoint));
 		}
 		
