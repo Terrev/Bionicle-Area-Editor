@@ -1403,7 +1403,7 @@ public class Areas : MonoBehaviour
 			Vector3 collisionPoint2 = new Vector3(-binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
 			
 			// HEALTH
-			UInt32 health = binaryReader.ReadUInt32();
+			Int32 health = binaryReader.ReadInt32();
 			
 			// SPAWN ID
 			string characterToSpawn = Utilities.CharArrayToString(binaryReader.ReadChars(4));
@@ -1438,7 +1438,7 @@ public class Areas : MonoBehaviour
 			}
 			// HIVE COMPONENT FOR EXTRA DATA
 			Hive hive = newGameObject.AddComponent<Hive>() as Hive;
-			hive.health = (int)health;
+			hive.health = health;
 			hive.characterToSpawn = characterToSpawn;
 			hive.maxSpawns = maxSpawns;
 			hive.spawnPoint = spawnPoint;
