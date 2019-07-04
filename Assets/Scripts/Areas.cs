@@ -736,7 +736,6 @@ public class Areas : MonoBehaviour
 			binaryWriter.Write(bionicleSpotlights[i].theta);
 			binaryWriter.Write(bionicleSpotlights[i].phi);
 			binaryWriter.Write(bionicleSpotlights[i].range);
-			
 		}
 		
 		// pointer thingy (lol)

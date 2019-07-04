@@ -35,7 +35,7 @@ public class BionicleLight : MonoBehaviour
 		}
 		else // directional
 		{
-			Gizmos.DrawLine(Vector3.zero, transform.position);
+			Gizmos.DrawLine(transform.parent.position, transform.position);
 		}
 	}
 	
