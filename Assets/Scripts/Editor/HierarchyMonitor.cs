@@ -17,7 +17,7 @@ public static class HierarchyMonitor
 			{
 				UpdateCollisionBoxes(blah);
 			}
-			if (blah.name.Contains("_POS.slb"))
+			else if (blah.name.Contains("_POS.slb"))
 			{
 				UpdatePositionVisuals(blah);
 			}

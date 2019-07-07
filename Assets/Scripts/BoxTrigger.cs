@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[ExecuteInEditMode]
 public class BoxTrigger : MonoBehaviour
 {
 	[System.NonSerialized]
@@ -11,12 +12,33 @@ public class BoxTrigger : MonoBehaviour
 	
 	Vector3 defaultHandleScale = new Vector3(3.0f, 3.0f, 3.0f);
 	
+	Transform boxVisual;
+	Material normalBoxMaterial;
+	Material invalidBoxMaterial;
+	Material normalCornerMaterial;
+	Material invalidCornerMaterial;
+	// this is the part where I stop caring
+	bool nothingWeirdHappening = true;
+	bool nothingWeirdHappeningLastUpdate = true;
+	
+	// TRANSPARENT BOX VISUAL
+	void LateUpdate()
+	{
+		MakeSureWeHaveEverything();
+		
+		if (CheckPoints())
+		{
+			// set scale and position
+			boxVisual.localScale = new Vector3(Mathf.Abs(point1.localPosition.x - point2.localPosition.x), Mathf.Abs(point1.localPosition.y - point2.localPosition.y), Mathf.Abs(point1.localPosition.z - point2.localPosition.z));
+			boxVisual.localPosition = new Vector3((point1.localPosition.x + point2.localPosition.x) / 2.0f, (point1.localPosition.y + point2.localPosition.y) / 2.0f, (point1.localPosition.z + point2.localPosition.z) / 2.0f);
+			
+			RefreshBoxMaterials();
+		}
+	}
+	
 	void OnDrawGizmos()
 	{
-		if (!CheckPoints())
-		{
-			GetPoints();
-		}
+		MakeSureWeHaveEverything();
 		
 		if (CheckPoints())
 		{
@@ -58,6 +80,73 @@ public class BoxTrigger : MonoBehaviour
 			Gizmos.DrawLine(corner2, corner6);
 			Gizmos.DrawLine(corner3, corner7);
 			Gizmos.DrawLine(corner4, corner8);
+			
+			RefreshBoxMaterials();
+		}
+	}
+	
+	// sigh
+	void MakeSureWeHaveEverything()
+	{
+		// grab materials
+		if (normalBoxMaterial == null)
+		{
+			normalBoxMaterial = Resources.Load("_Editor/Box Trigger Visual", typeof (Material)) as Material;
+		}
+		if (invalidBoxMaterial == null)
+		{
+			invalidBoxMaterial = Resources.Load("_Editor/Box Trigger Visual Invalid", typeof (Material)) as Material;
+		}
+		if (normalCornerMaterial == null)
+		{
+			normalCornerMaterial = Resources.Load("_Editor/Box Trigger Corner", typeof (Material)) as Material;
+		}
+		if (invalidCornerMaterial == null)
+		{
+			invalidCornerMaterial = Resources.Load("_Editor/Box Trigger Corner Invalid", typeof (Material)) as Material;
+		}
+		
+		// grab box
+		if (boxVisual == null)
+		{
+			boxVisual = transform.Find("Ignore Me");
+			// already do this while loading the slb but meh, just in case anything unforeseen happens
+			boxVisual.gameObject.hideFlags = HideFlags.HideInHierarchy;
+		}
+		
+		// grab points
+		if (!CheckPoints())
+		{
+			GetPoints();
+		}
+	}
+	
+	void RefreshBoxMaterials()
+	{
+		// lol
+		if (CheckValidity() && CheckIfCube())
+		{
+			nothingWeirdHappening = true;
+		}
+		else
+		{
+			nothingWeirdHappening = false;
+		}
+		if (nothingWeirdHappening != nothingWeirdHappeningLastUpdate)
+		{
+			if (nothingWeirdHappening)
+			{
+				boxVisual.gameObject.GetComponent<MeshRenderer>().material = normalBoxMaterial;
+				point1.gameObject.GetComponent<MeshRenderer>().material = normalCornerMaterial;
+				point2.gameObject.GetComponent<MeshRenderer>().material = normalCornerMaterial;
+			}
+			else
+			{
+				boxVisual.gameObject.GetComponent<MeshRenderer>().material = invalidBoxMaterial;
+				point1.gameObject.GetComponent<MeshRenderer>().material = invalidCornerMaterial;
+				point2.gameObject.GetComponent<MeshRenderer>().material = invalidCornerMaterial;
+			}
+			nothingWeirdHappeningLastUpdate = nothingWeirdHappening;
 		}
 	}
 	

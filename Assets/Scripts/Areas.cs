@@ -64,11 +64,7 @@ public class Areas : MonoBehaviour
 			areaName = areas[i].Substring(areas[i].Length - 4);
 			if (areaName != levelName && areaName != "ures") // textures folder lol
 			{
-				//LoadObjSlb();
-				//LoadPosSlb();
-				//LoadCharSlb();
-				//LoadTriggerSlb();
-				LoadLightSlb();
+				LoadCamSlb();
 			}
 		}
 	}
@@ -824,13 +820,12 @@ public class Areas : MonoBehaviour
 			blah2.transform.localPosition = point2;
 			blah2.transform.localRotation = Quaternion.identity;
 			
-			/*
 			GameObject boxVisual = Instantiate(Resources.Load("_Editor/Box Trigger Visual", typeof(GameObject))) as GameObject;
-			boxVisual.name = "Visual";
+			boxVisual.name = "Ignore Me";
+			boxVisual.hideFlags = HideFlags.HideInHierarchy;
 			boxVisual.transform.parent = newGameObject.transform;
 			boxVisual.transform.localScale = new Vector3(Mathf.Abs(point1.x - point2.x), Mathf.Abs(point1.y - point2.y), Mathf.Abs(point1.z - point2.z));
 			boxVisual.transform.localPosition = new Vector3((point1.x + point2.x) / 2.0f, (point1.y + point2.y) / 2.0f, (point1.z + point2.z) / 2.0f);
-			*/
 		}
 		
 		// PLANE TABLE TIME
@@ -1276,12 +1271,12 @@ public class Areas : MonoBehaviour
 		
 		// offsets for trigger box and spline path tables
 		// welcome to magic number land
-		for (int j = 0; j < entries.Count; j++)
+		for (int i = 0; i < entries.Count; i++)
 		{
 			int offset = 12; // initial data
-			if (j > 0)
+			if (i > 0)
 			{
-				offset += j * 52; // skip forward as many entries as we need
+				offset += i * 52; // skip forward as many entries as we need
 			}
 			offset += 40; // entry data up to first offset
 			binaryWriter.Write(offset);
@@ -1704,18 +1699,18 @@ public class Areas : MonoBehaviour
 		
 		// offset stuff
 		binaryWriter.Write(4);
-		for (int j = 0; j < entries.Count; j++)
+		for (int i = 0; i < entries.Count; i++)
 		{
 			int offset = 8; // initial data
-			if (j > 0)
+			if (i > 0)
 			{
-				offset += j * 68; // skip forward as many entries as we need
+				offset += i * 68; // skip forward as many entries as we need
 			}
 			binaryWriter.Write(offset);
 		}
 		
 		// offset entry count
-		binaryWriter.Write(1 + (entries.Count));
+		binaryWriter.Write(1 + entries.Count);
 		
 		// FOOTER
 		binaryWriter.Write(0xC0FFEE);
@@ -1728,6 +1723,233 @@ public class Areas : MonoBehaviour
 		if (overwriteSlbInResources)
 		{
 			string path2 = Application.dataPath + "/Resources/" + gameVersion + "/levels/" + levelName + "/" + areaName + "/" + areaName + "_SOUNDS.slb";
+			File.Copy(path, path2, true);
+			Debug.Log("Copied to " + path2);
+		}
+	}
+	
+	#endregion
+	///////////////////////////////////////////////////////////////////
+	
+	
+	
+	///////////////////////////////////////////////////////////////////
+	#region CAM
+	
+	public class SplineReferences
+	{
+		public GameObject pathParent;
+		public List<GameObject> points = new List<GameObject>();
+	}
+	
+	public void LoadCamSlb()
+	{
+		// PREPARE FOR FILE READING
+		string path = Application.dataPath + "/Resources/" + gameVersion + "/levels/" + levelName + "/" + areaName + "/" + areaName + "_CAM.slb";
+		if (!File.Exists(path))
+		{
+			Debug.LogError("File not found: " + path);
+			return;
+		}
+		FileStream fileStream = new FileStream(path, FileMode.Open);
+		BinaryReader binaryReader = new BinaryReader(fileStream);
+		
+		// MAKE SLB PARENT GAMEOBJECT
+		// doing this after opening the file so we don't just get an empty gameobject if we entered an invalid name or something
+		GameObject slbParent = new GameObject(areaName + "_CAM.slb");
+		
+		// READ BASIC INFO
+		UInt32 entryCount = binaryReader.ReadUInt32();
+		UInt32 tableOffset = binaryReader.ReadUInt32();
+		
+		int pathCount = (int)entryCount / 3;
+		List<SplineReferences> paths = new List<SplineReferences>();
+		
+		// GO TO BEGINNING OF TABLE
+		fileStream.Seek(tableOffset, SeekOrigin.Begin);
+		
+		int xyzCounter = 0;
+		int pathCounter = 0;
+		// LOOP THROUGH ENTRIES
+		for (int i = 0; i < entryCount; i++)
+		{
+			// READ MAIN ENTRY
+			UInt32 splinePointsCount = binaryReader.ReadUInt32();
+			UInt32 splinePointsOffset = binaryReader.ReadUInt32();
+			binaryReader.ReadUInt32(); // reserved pointer space for engine, always 0, according to template
+			
+			if (xyzCounter == 0)
+			{
+				// starting new path
+				paths.Add(new SplineReferences());
+				paths[pathCounter].pathParent = new GameObject("Path " + pathCounter);
+				paths[pathCounter].pathParent.transform.parent = slbParent.transform;
+				paths[pathCounter].pathParent.AddComponent<SplinePath>();
+				for (int j = 0; j < splinePointsCount; j++)
+				{
+					GameObject newGameObject = Instantiate(Resources.Load("_Editor/Spline Point", typeof(GameObject)), Vector3.zero, Quaternion.identity, slbParent.transform) as GameObject;
+					newGameObject.name = "Point";
+					newGameObject.transform.parent = paths[pathCounter].pathParent.transform;
+					paths[pathCounter].points.Add(newGameObject);
+				}
+			}
+			
+			// SPLINE POINTS
+			long rememberMe = fileStream.Position;
+			fileStream.Seek(splinePointsOffset, SeekOrigin.Begin);
+			for (int j = 0; j < splinePointsCount; j++)
+			{
+				float time = binaryReader.ReadSingle();
+				float pointValue = binaryReader.ReadSingle();
+				
+				if (xyzCounter == 0)
+				{
+					paths[pathCounter].points[j].transform.position = new Vector3(-pointValue, 0.0f, 0.0f);
+					paths[pathCounter].points[j].GetComponent<SplinePoint>().time = time;
+				}
+				else if (xyzCounter == 1)
+				{
+					paths[pathCounter].points[j].transform.position = new Vector3(paths[pathCounter].points[j].transform.position.x, pointValue, 0.0f);
+				}
+				else
+				{
+					paths[pathCounter].points[j].transform.position = new Vector3(paths[pathCounter].points[j].transform.position.x, paths[pathCounter].points[j].transform.position.y, pointValue);
+				}
+			}
+			fileStream.Seek(rememberMe, SeekOrigin.Begin);
+			
+			xyzCounter++;
+			if (xyzCounter == 3)
+			{
+				xyzCounter = 0;
+				pathCounter++;
+			}
+		}
+		
+		// SHRUUUUG
+		binaryReader.Close();
+		fileStream.Close();
+		Debug.Log("Loaded " + path);
+	}
+	
+	public void SaveCamSlb()
+	{
+		// LOOK OVER SCENE AND ERROR CHECK
+		// get slb parent
+		GameObject parentGameObject = GameObject.Find("/" + areaName + "_CAM.slb");
+		if (parentGameObject == null)
+		{
+			Debug.LogError("Couldn't find GameObject named " + areaName + "_CAM.slb");
+			return;
+		}
+		// grab the slb's gameobjects/entries
+		List<GameObject> paths = new List<GameObject>();
+		foreach (Transform pathTransform in parentGameObject.transform)
+		{
+			paths.Add(pathTransform.gameObject);
+		}
+		
+		// OK NOW FOR ACTUAL FILE STUFF
+		// GET FILE PATH
+		string path = EditorUtility.SaveFilePanel("Save SLB", "", areaName + "_CAM.slb", "slb");
+		if (path.Length == 0)
+		{
+			return;
+		}
+		
+		// WRITE THE FILE
+		FileStream fileStream = new FileStream(path, FileMode.Create);
+		BinaryWriter binaryWriter = new BinaryWriter(fileStream);
+		
+		binaryWriter.Write(paths.Count * 3); // entry count
+		binaryWriter.Write(8); // table offset
+		
+		List<long> offsets = new List<long>();
+		
+		// ENTRIES
+		for (int i = 0; i < paths.Count; i++)
+		{
+			// x
+			binaryWriter.Write(paths[i].transform.childCount);
+			binaryWriter.Write(0); // temp offset
+			binaryWriter.Write(0); // reserved pointer space for engine
+			
+			// y
+			binaryWriter.Write(paths[i].transform.childCount);
+			binaryWriter.Write(0); // temp offset
+			binaryWriter.Write(0); // reserved pointer space for engine
+			
+			// z
+			binaryWriter.Write(paths[i].transform.childCount);
+			binaryWriter.Write(0); // temp offset
+			binaryWriter.Write(0); // reserved pointer space for engine
+		}
+		
+		// POINT DATA
+		for (int i = 0; i < paths.Count; i++)
+		{
+			// x
+			offsets.Add(fileStream.Position);
+			foreach (Transform point in paths[i].transform)
+			{
+				binaryWriter.Write(point.gameObject.GetComponent<SplinePoint>().time);
+				binaryWriter.Write(Utilities.DumbCheck(-point.transform.localPosition.x));
+			}
+			
+			// y
+			offsets.Add(fileStream.Position);
+			foreach (Transform point in paths[i].transform)
+			{
+				binaryWriter.Write(point.gameObject.GetComponent<SplinePoint>().time);
+				binaryWriter.Write(Utilities.DumbCheck(point.transform.localPosition.y));
+			}
+			
+			// z
+			offsets.Add(fileStream.Position);
+			foreach (Transform point in paths[i].transform)
+			{
+				binaryWriter.Write(point.gameObject.GetComponent<SplinePoint>().time);
+				binaryWriter.Write(Utilities.DumbCheck(point.transform.localPosition.z));
+			}
+		}
+		
+		// GO BACK AND DO OFFSETS IN FIRST ENTRIES
+		fileStream.Seek(8, SeekOrigin.Begin);
+		for (int i = 0; i < paths.Count * 3; i++)
+		{
+			fileStream.Seek(4, SeekOrigin.Current);
+			binaryWriter.Write((Int32)offsets[i]);
+			fileStream.Seek(4, SeekOrigin.Current);
+		}
+		
+		// OFFSETS AT END OF FILE
+		fileStream.Seek(0, SeekOrigin.End);
+		binaryWriter.Write(4);
+		for (int i = 0; i < (paths.Count * 3); i++)
+		{
+			int offset = 8; // initial data
+			if (i > 0)
+			{
+				offset += i * 12; // skip forward as many entries as we need
+			}
+			offset += 4; // entry data up to first offset
+			binaryWriter.Write(offset);
+		}
+		
+		// offset entry count
+		binaryWriter.Write(1 + (paths.Count * 3));
+		
+		// FOOTER
+		binaryWriter.Write(0xC0FFEE);
+		
+		// CONTINUED SHRUG
+		binaryWriter.Close();
+		fileStream.Close();
+		Debug.Log("Saved " + path);
+		
+		if (overwriteSlbInResources)
+		{
+			string path2 = Application.dataPath + "/Resources/" + gameVersion + "/levels/" + levelName + "/" + areaName + "/" + areaName + "_CAM.slb";
 			File.Copy(path, path2, true);
 			Debug.Log("Copied to " + path2);
 		}

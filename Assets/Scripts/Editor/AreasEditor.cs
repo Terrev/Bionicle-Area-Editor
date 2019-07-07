@@ -48,6 +48,10 @@ public class AreasEditor : Editor
 		{
 			areas.LoadSoundsSlb();
 		}
+		if (GUILayout.Button("Load Cam SLB"))
+		{
+			areas.LoadCamSlb();
+		}
 		GUILayout.Space(10);
 		if (GUILayout.Button("Save Objects SLB"))
 		{
@@ -80,6 +84,10 @@ public class AreasEditor : Editor
 		if (GUILayout.Button("Save Sounds SLB"))
 		{
 			areas.SaveSoundsSlb();
+		}
+		if (GUILayout.Button("Save Cam SLB"))
+		{
+			areas.SaveCamSlb();
 		}
 	}
 }
