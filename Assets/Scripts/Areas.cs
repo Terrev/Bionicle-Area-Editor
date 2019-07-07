@@ -1110,53 +1110,6 @@ public class Areas : MonoBehaviour
 				Debug.LogWarning("Spline data found, this data is not supported yet and will be lost if you re-save the file");
 			}
 			
-			// -----------------------------------------------
-			// TODO/WIP
-			// EXTRA DATA
-			// -----------------------------------------------
-			
-			// READ TRIGGER BOXES
-			/*
-			List<string> triggerBoxes = new List<string>();
-			if (triggerBoxEntryCount != 0)
-			{
-				fileStream.Seek(triggerBoxOffset, SeekOrigin.Begin);
-				for (int j = 0; j < triggerBoxEntryCount; j++)
-				{
-					triggerBoxes.Add(Utilities.CharArrayToString(binaryReader.ReadChars(4)));
-				}
-			}
-			*/
-			// then add component with triggerBoxes contents later
-			// tbh it's just the exporting part I don't wanna deal with but eh it probably won't be that bad, I just wanna get this out the door
-			
-			// READ SPLINE PATHS
-			// was working on this at like 3 AM a few weeks ago and abruptly stopped cause BED
-			/*
-			List<string> splinePaths = new List<string>(); // however we wanna store this
-			if (splinePathEntryCount != 0)
-			{
-				fileStream.Seek(splinePathOffset, SeekOrigin.Begin);
-				for (int k = 0; k < splinePathEntryCount; k++)
-				{
-					UInt32 splinePointsEntryCount = binaryReader.ReadUInt32();
-					UInt32 splinePointsOffset = binaryReader.ReadUInt32();
-					UInt32 unusedPointsOffset = binaryReader.ReadUInt32(); // always 0, reserved pointer space for game engine apparently
-					splinePaths.Add("the stuff above");
-				}
-				
-				// for each thing in splinePaths above
-				// blahblahblahblah
-				fileStream.Seek(splinePointsOffset, SeekOrigin.Begin);
-				for (int l = 0; l < splinePointsEntryCount; l++)
-				{
-					float time = binaryReader.ReadSingle();
-					float valueThingy = binaryReader.ReadSingle();
-				}
-			}
-			*/
-			
-			
 			// PUT CHARACTER/MARKER IN SCENE
 			GameObject newGameObject;
 			GameObject character = (GameObject)Resources.Load(gameVersion + "/characters/" + identifier + "/" + identifier, typeof(GameObject));
@@ -1179,6 +1132,91 @@ public class Areas : MonoBehaviour
 			BionicleCharacter bionicleCharacter = newGameObject.AddComponent<BionicleCharacter>() as BionicleCharacter;
 			bionicleCharacter.unusedOrientation = orientation;
 			bionicleCharacter.unknown = unknown;
+			
+			// -----------------------------------------------
+			// TODO/WIP
+			// EXTRA DATA
+			// -----------------------------------------------
+			
+			// READ TRIGGER BOXES
+			/*
+			List<string> triggerBoxes = new List<string>();
+			if (triggerBoxEntryCount != 0)
+			{
+				fileStream.Seek(triggerBoxOffset, SeekOrigin.Begin);
+				for (int j = 0; j < triggerBoxEntryCount; j++)
+				{
+					triggerBoxes.Add(Utilities.CharArrayToString(binaryReader.ReadChars(4)));
+				}
+			}
+			*/
+			// then add component with triggerBoxes contents later
+			// tbh it's just the exporting part I don't wanna deal with but eh it probably won't be that bad, I just wanna get this out the door
+			
+			// READ SPLINE PATHS
+			// IT'S TIME FOR YET MORE COPY PASTE
+			if (splinePathEntryCount != 0)
+			{
+				int pathCount = (int)splinePathEntryCount / 2;
+				List<SplineReferences> paths = new List<SplineReferences>();
+				
+				// GO TO BEGINNING OF TABLE
+				fileStream.Seek(splinePathOffset, SeekOrigin.Begin);
+				
+				int xyzCounter = 0;
+				int pathCounter = 0;
+				// LOOP THROUGH ENTRIES
+				for (int buggerOff = 0; buggerOff < splinePathEntryCount; buggerOff++)
+				{
+					// READ MAIN ENTRY
+					UInt32 splinePointsCount = binaryReader.ReadUInt32();
+					UInt32 splinePointsOffset = binaryReader.ReadUInt32();
+					binaryReader.ReadUInt32(); // reserved pointer space for engine, always 0, according to template
+					
+					if (xyzCounter == 0)
+					{
+						// starting new path
+						paths.Add(new SplineReferences());
+						paths[pathCounter].pathParent = new GameObject("Path " + pathCounter);
+						paths[pathCounter].pathParent.transform.parent = newGameObject.transform;
+						paths[pathCounter].pathParent.AddComponent<SplinePath>();
+						for (int j = 0; j < splinePointsCount; j++)
+						{
+							GameObject newSplinePoint = Instantiate(Resources.Load("_Editor/Spline Point", typeof(GameObject)), Vector3.zero, Quaternion.identity, slbParent.transform) as GameObject;
+							newSplinePoint.name = "Point";
+							newSplinePoint.transform.parent = paths[pathCounter].pathParent.transform;
+							paths[pathCounter].points.Add(newSplinePoint);
+						}
+					}
+					
+					// SPLINE POINTS
+					long rememberMe = fileStream.Position;
+					fileStream.Seek(splinePointsOffset, SeekOrigin.Begin);
+					for (int j = 0; j < splinePointsCount; j++)
+					{
+						float time = binaryReader.ReadSingle();
+						float pointValue = binaryReader.ReadSingle();
+						
+						if (xyzCounter == 0)
+						{
+							paths[pathCounter].points[j].transform.position = new Vector3(-pointValue, 0.0f, 0.0f);
+							paths[pathCounter].points[j].GetComponent<SplinePoint>().time = time;
+						}
+						else
+						{
+							paths[pathCounter].points[j].transform.position = new Vector3(paths[pathCounter].points[j].transform.position.x, 0.0f, pointValue);
+						}
+					}
+					fileStream.Seek(rememberMe, SeekOrigin.Begin);
+					
+					xyzCounter++;
+					if (xyzCounter == 2)
+					{
+						xyzCounter = 0;
+						pathCounter++;
+					}
+				}
+			}
 		}
 		// SHRUG
 		// some stackoverflow post said closing the reader SHOULD close the stream but I don't trust "should" enough lol
@@ -1950,6 +1988,212 @@ public class Areas : MonoBehaviour
 		if (overwriteSlbInResources)
 		{
 			string path2 = Application.dataPath + "/Resources/" + gameVersion + "/levels/" + levelName + "/" + areaName + "/" + areaName + "_CAM.slb";
+			File.Copy(path, path2, true);
+			Debug.Log("Copied to " + path2);
+		}
+	}
+	
+	#endregion
+	///////////////////////////////////////////////////////////////////
+	
+	
+	
+	///////////////////////////////////////////////////////////////////
+	#region SPLINE
+	
+	// these are identical to cam SLBs except they have no y tables; x and z only
+	
+	public void LoadSplineSlb()
+	{
+		// PREPARE FOR FILE READING
+		string path = Application.dataPath + "/Resources/" + gameVersion + "/levels/" + levelName + "/" + areaName + "/" + areaName + "_SPLINE.slb";
+		if (!File.Exists(path))
+		{
+			Debug.LogError("File not found: " + path);
+			return;
+		}
+		FileStream fileStream = new FileStream(path, FileMode.Open);
+		BinaryReader binaryReader = new BinaryReader(fileStream);
+		
+		// MAKE SLB PARENT GAMEOBJECT
+		// doing this after opening the file so we don't just get an empty gameobject if we entered an invalid name or something
+		GameObject slbParent = new GameObject(areaName + "_SPLINE.slb");
+		
+		// READ BASIC INFO
+		UInt32 entryCount = binaryReader.ReadUInt32();
+		UInt32 tableOffset = binaryReader.ReadUInt32();
+		
+		int pathCount = (int)entryCount / 2;
+		List<SplineReferences> paths = new List<SplineReferences>();
+		
+		// GO TO BEGINNING OF TABLE
+		fileStream.Seek(tableOffset, SeekOrigin.Begin);
+		
+		int xyzCounter = 0;
+		int pathCounter = 0;
+		// LOOP THROUGH ENTRIES
+		for (int i = 0; i < entryCount; i++)
+		{
+			// READ MAIN ENTRY
+			UInt32 splinePointsCount = binaryReader.ReadUInt32();
+			UInt32 splinePointsOffset = binaryReader.ReadUInt32();
+			binaryReader.ReadUInt32(); // reserved pointer space for engine, always 0, according to template
+			
+			if (xyzCounter == 0)
+			{
+				// starting new path
+				paths.Add(new SplineReferences());
+				paths[pathCounter].pathParent = new GameObject("Path " + pathCounter);
+				paths[pathCounter].pathParent.transform.parent = slbParent.transform;
+				paths[pathCounter].pathParent.AddComponent<SplinePath>();
+				for (int j = 0; j < splinePointsCount; j++)
+				{
+					GameObject newGameObject = Instantiate(Resources.Load("_Editor/Spline Point", typeof(GameObject)), Vector3.zero, Quaternion.identity, slbParent.transform) as GameObject;
+					newGameObject.name = "Point";
+					newGameObject.transform.parent = paths[pathCounter].pathParent.transform;
+					paths[pathCounter].points.Add(newGameObject);
+				}
+			}
+			
+			// SPLINE POINTS
+			long rememberMe = fileStream.Position;
+			fileStream.Seek(splinePointsOffset, SeekOrigin.Begin);
+			for (int j = 0; j < splinePointsCount; j++)
+			{
+				float time = binaryReader.ReadSingle();
+				float pointValue = binaryReader.ReadSingle();
+				
+				if (xyzCounter == 0)
+				{
+					paths[pathCounter].points[j].transform.position = new Vector3(-pointValue, 0.0f, 0.0f);
+					paths[pathCounter].points[j].GetComponent<SplinePoint>().time = time;
+				}
+				else
+				{
+					paths[pathCounter].points[j].transform.position = new Vector3(paths[pathCounter].points[j].transform.position.x, 0.0f, pointValue);
+				}
+			}
+			fileStream.Seek(rememberMe, SeekOrigin.Begin);
+			
+			xyzCounter++;
+			if (xyzCounter == 2)
+			{
+				xyzCounter = 0;
+				pathCounter++;
+			}
+		}
+		
+		// SHRUUUUG
+		binaryReader.Close();
+		fileStream.Close();
+		Debug.Log("Loaded " + path);
+	}
+	
+	public void SaveSplineSlb()
+	{
+		// LOOK OVER SCENE AND ERROR CHECK
+		// get slb parent
+		GameObject parentGameObject = GameObject.Find("/" + areaName + "_SPLINE.slb");
+		if (parentGameObject == null)
+		{
+			Debug.LogError("Couldn't find GameObject named " + areaName + "_SPLINE.slb");
+			return;
+		}
+		// grab the slb's gameobjects/entries
+		List<GameObject> paths = new List<GameObject>();
+		foreach (Transform pathTransform in parentGameObject.transform)
+		{
+			paths.Add(pathTransform.gameObject);
+		}
+		
+		// OK NOW FOR ACTUAL FILE STUFF
+		// GET FILE PATH
+		string path = EditorUtility.SaveFilePanel("Save SLB", "", areaName + "_SPLINE.slb", "slb");
+		if (path.Length == 0)
+		{
+			return;
+		}
+		
+		// WRITE THE FILE
+		FileStream fileStream = new FileStream(path, FileMode.Create);
+		BinaryWriter binaryWriter = new BinaryWriter(fileStream);
+		
+		binaryWriter.Write(paths.Count * 2); // entry count
+		binaryWriter.Write(8); // table offset
+		
+		List<long> offsets = new List<long>();
+		
+		// ENTRIES
+		for (int i = 0; i < paths.Count; i++)
+		{
+			// x
+			binaryWriter.Write(paths[i].transform.childCount);
+			binaryWriter.Write(0); // temp offset
+			binaryWriter.Write(0); // reserved pointer space for engine
+			
+			// z
+			binaryWriter.Write(paths[i].transform.childCount);
+			binaryWriter.Write(0); // temp offset
+			binaryWriter.Write(0); // reserved pointer space for engine
+		}
+		
+		// POINT DATA
+		for (int i = 0; i < paths.Count; i++)
+		{
+			// x
+			offsets.Add(fileStream.Position);
+			foreach (Transform point in paths[i].transform)
+			{
+				binaryWriter.Write(point.gameObject.GetComponent<SplinePoint>().time);
+				binaryWriter.Write(Utilities.DumbCheck(-point.transform.localPosition.x));
+			}
+			
+			// z
+			offsets.Add(fileStream.Position);
+			foreach (Transform point in paths[i].transform)
+			{
+				binaryWriter.Write(point.gameObject.GetComponent<SplinePoint>().time);
+				binaryWriter.Write(Utilities.DumbCheck(point.transform.localPosition.z));
+			}
+		}
+		
+		// GO BACK AND DO OFFSETS IN FIRST ENTRIES
+		fileStream.Seek(8, SeekOrigin.Begin);
+		for (int i = 0; i < paths.Count * 2; i++)
+		{
+			fileStream.Seek(4, SeekOrigin.Current);
+			binaryWriter.Write((Int32)offsets[i]);
+			fileStream.Seek(4, SeekOrigin.Current);
+		}
+		
+		// OFFSETS AT END OF FILE
+		fileStream.Seek(0, SeekOrigin.End);
+		binaryWriter.Write(4);
+		for (int i = 0; i < (paths.Count * 2); i++)
+		{
+			int offset = 8; // initial data
+			if (i > 0)
+			{
+				offset += i * 12; // skip forward as many entries as we need
+			}
+			offset += 4; // entry data up to first offset
+			binaryWriter.Write(offset);
+		}
+		
+		// offset entry count
+		binaryWriter.Write(1 + (paths.Count * 2));
+		
+		// FOOTER
+		binaryWriter.Write(0xC0FFEE);
+		
+		// CONTINUED SHRUG
+		binaryWriter.Close();
+		fileStream.Close();
+		Debug.Log("Saved " + path);
+		
+		if (overwriteSlbInResources)
+		{
+			string path2 = Application.dataPath + "/Resources/" + gameVersion + "/levels/" + levelName + "/" + areaName + "/" + areaName + "_SPLINE.slb";
 			File.Copy(path, path2, true);
 			Debug.Log("Copied to " + path2);
 		}

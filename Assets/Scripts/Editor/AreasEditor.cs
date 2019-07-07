@@ -52,6 +52,10 @@ public class AreasEditor : Editor
 		{
 			areas.LoadCamSlb();
 		}
+		if (GUILayout.Button("Load Spline SLB"))
+		{
+			areas.LoadSplineSlb();
+		}
 		GUILayout.Space(10);
 		if (GUILayout.Button("Save Objects SLB"))
 		{
@@ -88,6 +92,10 @@ public class AreasEditor : Editor
 		if (GUILayout.Button("Save Cam SLB"))
 		{
 			areas.SaveCamSlb();
+		}
+		if (GUILayout.Button("Save Spline SLB"))
+		{
+			areas.SaveSplineSlb();
 		}
 	}
 }
