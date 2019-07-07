@@ -57,7 +57,7 @@ public class SplinePath : MonoBehaviour
 	
 	public void SetTimesToNotQuiteRightButCloseEnoughValuesForCams()
 	{
-		if (EditorUtility.DisplayDialog("Set point times by distance?", "This isn't 100% accurate because splines add a bit to the distance as they curve and smooth things out, and I just can't be asked to do that, but it's pretty close. You can tune it by hand if you want.", "Yep", "NO"))
+		if (EditorUtility.DisplayDialog("Set point times by distance?", "This isn't 100% accurate because splines add a bit to the distance as they curve and smooth things out, and this doesn't account for that yet. It's fairly close though. You can tune it by hand if you want.", "Yep", "NO"))
 		{
 			for (int i = 0; i < transform.childCount; i++)
 			{
