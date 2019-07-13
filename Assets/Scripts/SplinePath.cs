@@ -9,9 +9,9 @@ public class SplinePath : MonoBehaviour
 	void Update()
 	{
 		// don't move
-		if (transform.position != Vector3.zero)
+		if (transform.localPosition != Vector3.zero)
 		{
-			transform.position = Vector3.zero;
+			transform.localPosition = Vector3.zero;
 		}
 		if (transform.localRotation != Quaternion.identity)
 		{

@@ -1055,6 +1055,8 @@ public class Areas : MonoBehaviour
 	///////////////////////////////////////////////////////////////////
 	#region CHAR
 	
+	//   A B S O L U T E   T R A I N W R E C K
+	
 	public void LoadCharSlb()
 	{
 		// PREPARE FOR FILE READING
@@ -1097,18 +1099,10 @@ public class Areas : MonoBehaviour
 			UInt32 triggerBoxEntryCountUnused = binaryReader.ReadUInt32();
 			UInt32 triggerBoxEntryCount = binaryReader.ReadUInt32();
 			UInt32 triggerBoxOffset = binaryReader.ReadUInt32();
-			if (triggerBoxEntryCountUnused != 0 || triggerBoxEntryCount != 0)
-			{
-				Debug.LogWarning("Trigger box data found for " + identifier + ", this data is not supported yet and will be lost if you re-save the file");
-			}
 			
 			// SPLINE PATHS TABLE (lev3\gly1, lev5\lep1)
 			UInt32 splinePathEntryCount = binaryReader.ReadUInt32();
 			UInt32 splinePathOffset = binaryReader.ReadUInt32();
-			if (splinePathEntryCount != 0)
-			{
-				Debug.LogWarning("Spline data found, this data is not supported yet and will be lost if you re-save the file");
-			}
 			
 			// PUT CHARACTER/MARKER IN SCENE
 			GameObject newGameObject;
@@ -1133,25 +1127,22 @@ public class Areas : MonoBehaviour
 			bionicleCharacter.unusedOrientation = orientation;
 			bionicleCharacter.unknown = unknown;
 			
-			// -----------------------------------------------
-			// TODO/WIP
+			long mainEntryProgress = fileStream.Position;
+			
 			// EXTRA DATA
-			// -----------------------------------------------
 			
 			// READ TRIGGER BOXES
-			/*
-			List<string> triggerBoxes = new List<string>();
 			if (triggerBoxEntryCount != 0)
 			{
+				bionicleCharacter.triggerBoxes = new string[triggerBoxEntryCount];
+				
 				fileStream.Seek(triggerBoxOffset, SeekOrigin.Begin);
 				for (int j = 0; j < triggerBoxEntryCount; j++)
 				{
-					triggerBoxes.Add(Utilities.CharArrayToString(binaryReader.ReadChars(4)));
+					bionicleCharacter.triggerBoxes[j] = Utilities.CharArrayToString(binaryReader.ReadChars(4));
 				}
+				fileStream.Seek(mainEntryProgress, SeekOrigin.Begin);
 			}
-			*/
-			// then add component with triggerBoxes contents later
-			// tbh it's just the exporting part I don't wanna deal with but eh it probably won't be that bad, I just wanna get this out the door
 			
 			// READ SPLINE PATHS
 			// IT'S TIME FOR YET MORE COPY PASTE
@@ -1159,6 +1150,7 @@ public class Areas : MonoBehaviour
 			{
 				int pathCount = (int)splinePathEntryCount / 2;
 				List<SplineReferences> paths = new List<SplineReferences>();
+				bionicleCharacter.paths = new GameObject[pathCount];
 				
 				// GO TO BEGINNING OF TABLE
 				fileStream.Seek(splinePathOffset, SeekOrigin.Begin);
@@ -1177,9 +1169,10 @@ public class Areas : MonoBehaviour
 					{
 						// starting new path
 						paths.Add(new SplineReferences());
-						paths[pathCounter].pathParent = new GameObject("Path " + pathCounter);
-						paths[pathCounter].pathParent.transform.parent = newGameObject.transform;
+						paths[pathCounter].pathParent = new GameObject("_" + identifier + " Path " + pathCounter);
+						paths[pathCounter].pathParent.transform.parent = slbParent.transform;
 						paths[pathCounter].pathParent.AddComponent<SplinePath>();
+						bionicleCharacter.paths[pathCounter] = paths[pathCounter].pathParent;
 						for (int j = 0; j < splinePointsCount; j++)
 						{
 							GameObject newSplinePoint = Instantiate(Resources.Load("_Editor/Spline Point", typeof(GameObject)), Vector3.zero, Quaternion.identity, slbParent.transform) as GameObject;
@@ -1216,6 +1209,7 @@ public class Areas : MonoBehaviour
 						pathCounter++;
 					}
 				}
+				fileStream.Seek(mainEntryProgress, SeekOrigin.Begin);
 			}
 		}
 		// SHRUG
@@ -1239,7 +1233,10 @@ public class Areas : MonoBehaviour
 		List<GameObject> entries = new List<GameObject>();
 		foreach (Transform entry in parentGameObject.transform)
 		{
-			entries.Add(entry.gameObject);
+			if (!entry.gameObject.name.StartsWith("_"))
+			{
+				entries.Add(entry.gameObject);
+			}
 		}
 		// make sure all entry gameobjects have BionicleCharacter components (and grab them all)
 		List<BionicleCharacter> bionicleCharacters = new List<BionicleCharacter>();
@@ -1272,6 +1269,9 @@ public class Areas : MonoBehaviour
 		
 		// calculate for use later
 		int charTableLength = 12 + (entries.Count * 52); // 12 for initial data, and each entry is 52 long
+		int rollingCounter = charTableLength;
+		
+		List<long> offsetsForEndOfFile = new List<long>();
 		
 		// ENTRIES
 		for (int i = 0; i < entries.Count; i++)
@@ -1292,15 +1292,100 @@ public class Areas : MonoBehaviour
 			// UNKNOWN
 			binaryWriter.Write(bionicleCharacters[i].unknown);
 			
-			// TEMP TRIGGER BOXES
-			binaryWriter.Write(0); // entry count (unused)
-			binaryWriter.Write(0); // entry count
-			binaryWriter.Write(charTableLength); // offset points to end of character table/start of offset stuff to signify no data, according to shadowknight
+			long rememberMe = 0;
 			
-			// TEMP SPLINE PATHS TABLE
-			binaryWriter.Write(0); // entry count
-			binaryWriter.Write(charTableLength); // same as before
+			// WRITE TRIGGER BOXES
+			if (bionicleCharacters[i].triggerBoxes == null)
+			{
+				binaryWriter.Write(0); // entry count (unused)
+				binaryWriter.Write(0); // entry count
+				binaryWriter.Write(rollingCounter); // offset
+			}
+			else
+			{
+				binaryWriter.Write(bionicleCharacters[i].triggerBoxes.Length); // entry count (unused)
+				binaryWriter.Write(bionicleCharacters[i].triggerBoxes.Length); // entry count
+				binaryWriter.Write(rollingCounter); // offset
+				// go to rollingCounter, write, add to rollingCounter
+				rememberMe = fileStream.Position;
+				fileStream.Seek(rollingCounter, SeekOrigin.Begin);
+				for (int j = 0; j < bionicleCharacters[i].triggerBoxes.Length; j++)
+				{
+					binaryWriter.Write(Utilities.StringToCharArray(bionicleCharacters[i].triggerBoxes[j]));
+				}
+				rollingCounter = (int)fileStream.Position;
+				fileStream.Seek(rememberMe, SeekOrigin.Begin);
+			}
+			
+			// WRITE SPLINE PATHS
+			if (bionicleCharacters[i].paths == null)
+			{
+				binaryWriter.Write(0); // entry count
+				binaryWriter.Write(rollingCounter); // offset
+			}
+			else
+			{
+				binaryWriter.Write(bionicleCharacters[i].paths.Length * 2); // entry count
+				binaryWriter.Write(rollingCounter); // offset
+				rememberMe = fileStream.Position;
+				fileStream.Seek(rollingCounter, SeekOrigin.Begin);
+				
+				long startOfSplineTable = fileStream.Position;
+				
+				List<long> offsetsForSplines = new List<long>();
+				
+				// ENTRIES
+				for (int j = 0; j < bionicleCharacters[i].paths.Length; j++)
+				{
+					// x
+					binaryWriter.Write(bionicleCharacters[i].paths[j].transform.childCount);
+					offsetsForEndOfFile.Add(fileStream.Position);
+					binaryWriter.Write(0); // temp offset
+					binaryWriter.Write(0); // reserved pointer space for engine
+					
+					// z
+					binaryWriter.Write(bionicleCharacters[i].paths[j].transform.childCount);
+					offsetsForEndOfFile.Add(fileStream.Position);
+					binaryWriter.Write(0); // temp offset
+					binaryWriter.Write(0); // reserved pointer space for engine
+				}
+				
+				// POINT DATA
+				for (int j = 0; j < bionicleCharacters[i].paths.Length; j++)
+				{
+					// x
+					offsetsForSplines.Add(fileStream.Position);
+					foreach (Transform point in bionicleCharacters[i].paths[j].transform)
+					{
+						binaryWriter.Write(point.gameObject.GetComponent<SplinePoint>().time);
+						binaryWriter.Write(Utilities.DumbCheck(-point.transform.localPosition.x));
+					}
+					
+					// z
+					offsetsForSplines.Add(fileStream.Position);
+					foreach (Transform point in bionicleCharacters[i].paths[j].transform)
+					{
+						binaryWriter.Write(point.gameObject.GetComponent<SplinePoint>().time);
+						binaryWriter.Write(Utilities.DumbCheck(point.transform.localPosition.z));
+					}
+				}
+				
+				rollingCounter = (int)fileStream.Position;
+				
+				// GO BACK AND DO OFFSETS IN FIRST ENTRIES
+				fileStream.Seek(startOfSplineTable, SeekOrigin.Begin);
+				for (int j = 0; j < bionicleCharacters[i].paths.Length * 2; j++)
+				{
+					fileStream.Seek(4, SeekOrigin.Current);
+					binaryWriter.Write((Int32)offsetsForSplines[j]);
+					fileStream.Seek(4, SeekOrigin.Current);
+				}
+				
+				fileStream.Seek(rememberMe, SeekOrigin.Begin);	
+			}
 		}
+		
+		fileStream.Seek(0, SeekOrigin.End);
 		
 		// pointers to offsets or whatever
 		
@@ -1321,9 +1406,15 @@ public class Areas : MonoBehaviour
 			offset += 8; // onwards to the next offset
 			binaryWriter.Write(offset);
 		}
+		// HA HA HA HA HA HA HA HA HA HA
+		// FOR THE SPLINE TABLE STUFF
+		for (int i = 0; i < offsetsForEndOfFile.Count; i++)
+		{
+			binaryWriter.Write((Int32)offsetsForEndOfFile[i]);
+		}
 		
 		// offset entry count
-		binaryWriter.Write(1 + (entries.Count * 2));
+		binaryWriter.Write(1 + (entries.Count * 2) + offsetsForEndOfFile.Count);
 		
 		// FOOTER
 		binaryWriter.Write(0xC0FFEE);
