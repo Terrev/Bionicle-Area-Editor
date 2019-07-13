@@ -1245,8 +1245,8 @@ public class Areas : MonoBehaviour
 			BionicleCharacter bionicleCharacter = entry.GetComponent<BionicleCharacter>();
 			if (bionicleCharacter == null)
 			{
-				Debug.LogWarning("No BionicleCharacter component on " + entry.name + ", adding default/empty component");
-				bionicleCharacter = entry.AddComponent<BionicleCharacter>();
+				Debug.LogWarning("No BionicleCharacter component on " + entry.name + ", if this is a spline path please make sure the name starts with _");
+				return;
 			}
 			bionicleCharacters.Add(bionicleCharacter);
 		}
