@@ -44,6 +44,10 @@ public class AreasEditor : Editor
 		{
 			areas.LoadHiveSlb();
 		}
+		if (GUILayout.Button("Load Vines SLB"))
+		{
+			areas.LoadVineSlb();
+		}
 		if (GUILayout.Button("Load Sounds SLB"))
 		{
 			areas.LoadSoundsSlb();
@@ -84,6 +88,10 @@ public class AreasEditor : Editor
 		if (GUILayout.Button("Save Hives SLB"))
 		{
 			areas.SaveHiveSlb();
+		}
+		if (GUILayout.Button("Save Vines SLB"))
+		{
+			areas.SaveVineSlb();
 		}
 		if (GUILayout.Button("Save Sounds SLB"))
 		{

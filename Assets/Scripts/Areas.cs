@@ -1661,6 +1661,146 @@ public class Areas : MonoBehaviour
 	///////////////////////////////////////////////////////////////////
 	
 	
+	///////////////////////////////////////////////////////////////////
+	#region VINE
+	
+	public void LoadVineSlb()
+	{
+		// PREPARE FOR FILE READING
+		string path = Application.dataPath + "/Resources/" + gameVersion + "/levels/" + levelName + "/" + areaName + "/" + areaName + "_VINE.slb";
+		if (!File.Exists(path))
+		{
+			Debug.LogError("File not found: " + path);
+			return;
+		}
+		FileStream fileStream = new FileStream(path, FileMode.Open);
+		BinaryReader binaryReader = new BinaryReader(fileStream);
+		
+		// MAKE SLB PARENT GAMEOBJECT
+		// doing this after opening the file so we don't just get an empty gameobject if we entered an invalid name or something
+		GameObject slbParent = new GameObject(areaName + "_VINE.slb");
+		
+		// READ BASIC INFO
+		UInt32 entryCount = binaryReader.ReadUInt32();
+		UInt32 tableOffset = binaryReader.ReadUInt32();
+		
+		// GO TO BEGINNING OF TABLE
+		fileStream.Seek(tableOffset, SeekOrigin.Begin);
+		
+		// LOOP THROUGH ENTRIES
+		for (int i = 0; i < entryCount; i++)
+		{
+			// READ DATA
+			Vector3 position = new Vector3(-binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
+			float orientation = -binaryReader.ReadSingle();
+			Int32 bool1 = binaryReader.ReadInt32();
+			Int32 bool2 = binaryReader.ReadInt32();
+			float float1 = binaryReader.ReadSingle();
+			
+			// INSTANTIATE IN SCENE
+			GameObject newGameObject = new GameObject("Vine");
+			newGameObject.transform.parent = slbParent.transform;
+			newGameObject.transform.SetPositionAndRotation(position, Quaternion.Euler(new Vector3(0.0f, orientation, 0.0f)));
+			
+			// VINE COMPONENT FOR EXTRA DATA
+			Vine vine = newGameObject.AddComponent<Vine>() as Vine;
+			vine.bool1 = Convert.ToBoolean(bool1);
+			vine.bool2 = Convert.ToBoolean(bool2);
+			vine.float1 = float1;
+		}
+		// SHRUUUUG
+		binaryReader.Close();
+		fileStream.Close();
+		Debug.Log("Loaded " + path);
+	}
+	
+	
+	public void SaveVineSlb()
+	{
+		// LOOK OVER SCENE AND ERROR CHECK
+		// get slb parent
+		GameObject parentGameObject = GameObject.Find("/" + areaName + "_VINE.slb");
+		if (parentGameObject == null)
+		{
+			Debug.LogError("Couldn't find GameObject named " + areaName + "_VINE.slb");
+			return;
+		}
+		// grab the slb's gameobjects/entries
+		List<GameObject> entries = new List<GameObject>();
+		foreach (Transform entry in parentGameObject.transform)
+		{
+			entries.Add(entry.gameObject);
+		}
+		// make sure all entry gameobjects have Vine components (and grab them all)
+		List<Vine> vines = new List<Vine>();
+		foreach (GameObject entry in entries)
+		{
+			Vine vine = entry.GetComponent<Vine>();
+			if (vine == null)
+			{
+				Debug.LogError("No Vine component on " + entry.name);
+				return;
+			}
+			vines.Add(vine);
+		}
+		
+		// OK NOW FOR ACTUAL FILE STUFF
+		// GET FILE PATH
+		string path = EditorUtility.SaveFilePanel("Save SLB", "", areaName + "_VINE.slb", "slb");
+		if (path.Length == 0)
+		{
+			return;
+		}
+		
+		// WRITE THE FILE
+		FileStream fileStream = new FileStream(path, FileMode.Create);
+		BinaryWriter binaryWriter = new BinaryWriter(fileStream);
+		
+		binaryWriter.Write(entries.Count); // entry count
+		binaryWriter.Write(8); // table offset
+		
+		// ENTRIES
+		for (int i = 0; i < entries.Count; i++)
+		{
+			// POSITION
+			binaryWriter.Write(Utilities.DumbCheck(-entries[i].transform.localPosition.x));
+			binaryWriter.Write(Utilities.DumbCheck(entries[i].transform.localPosition.y));
+			binaryWriter.Write(Utilities.DumbCheck(entries[i].transform.localPosition.z));
+			
+			// ORIENTATION
+			binaryWriter.Write(Utilities.ClampRotation(Utilities.DumbCheck(-entries[i].transform.localEulerAngles.y)));
+			
+			// ETC
+			binaryWriter.Write(Convert.ToInt32(vines[i].bool1));
+			binaryWriter.Write(Convert.ToInt32(vines[i].bool2));
+			binaryWriter.Write(vines[i].float1);
+		}
+		
+		// pointer thingy (lol)
+		binaryWriter.Write(4);
+		
+		// entry count (lol again)
+		binaryWriter.Write(1);
+		
+		// FOOTER
+		binaryWriter.Write(0xC0FFEE);
+		
+		// CONTINUED SHRUG
+		binaryWriter.Close();
+		fileStream.Close();
+		Debug.Log("Saved " + path);
+		
+		if (overwriteSlbInResources)
+		{
+			string path2 = Application.dataPath + "/Resources/" + gameVersion + "/levels/" + levelName + "/" + areaName + "/" + areaName + "_VINE.slb";
+			File.Copy(path, path2, true);
+			Debug.Log("Copied to " + path2);
+		}
+	}
+	
+	#endregion
+	///////////////////////////////////////////////////////////////////
+	
 	
 	///////////////////////////////////////////////////////////////////
 	#region SOUNDS
