@@ -14,9 +14,9 @@ public class PositionSnapper : MonoBehaviour
 		if
 		(
 			!gameObject.name.StartsWith("am") &&  // ammo
-			!gameObject.name.StartsWith("ar") &&  // arrow
+			//!gameObject.name.StartsWith("ar") &&  // arrow - these snap in-game, but they probably shouldn't
 			!gameObject.name.StartsWith("et") &&  // token
-			!gameObject.name.StartsWith("pa") &&  // pickup air
+			//!gameObject.name.StartsWith("pa") &&  // pickup air - actually, these *don't* snap in-game
 			!gameObject.name.StartsWith("pe") &&  // pickup energy
 			!gameObject.name.StartsWith("ph")     // pickup health
 		)
