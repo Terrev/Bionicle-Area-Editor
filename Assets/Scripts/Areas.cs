@@ -319,6 +319,7 @@ public class Areas : MonoBehaviour
 		// MAKE SLB PARENT GAMEOBJECT
 		// doing this after opening the file so we don't just get an empty gameobject if we entered an invalid name or something
 		GameObject slbParent = new GameObject(areaName + "_POS.slb");
+		slbParent.AddComponent<Positions>();
 		
 		// SKIP UNNEEDED/UNUSED STUFF AT START OF FILE
 		binaryReader.BaseStream.Position = 4;
@@ -341,7 +342,8 @@ public class Areas : MonoBehaviour
 			// PUT MARKER IN SCENE
 			GameObject newGameObject = Instantiate(Resources.Load("_Editor/Position Markers/Position Marker", typeof(GameObject)), position, Quaternion.identity, slbParent.transform) as GameObject;
 			newGameObject.name = identifier + " " + flags;
-			newGameObject.AddComponent<PositionSnapper>();
+			PositionSnapper positionSnapper = newGameObject.AddComponent<PositionSnapper>() as PositionSnapper;
+			positionSnapper.loadedPosition = position;
 		}
 		// SHRUUUUG
 		binaryReader.Close();

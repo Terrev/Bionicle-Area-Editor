@@ -13,7 +13,12 @@ public class PositionSnapperEditor : Editor
 		GUILayout.Space(10);
 		if (GUILayout.Button("Snap pickup (floats 1.5 units from ground)"))
 		{
-			positionSnapper.SnapDownwards();
+			positionSnapper.SnapDownwards(positionSnapper.snapDistance, true);
+		}
+		GUILayout.Space(10);
+		if (GUILayout.Button("Revert to loaded position"))
+		{
+			positionSnapper.RevertToLoadedPosition();
 		}
 	}
 }
