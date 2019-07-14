@@ -340,8 +340,8 @@ public class Areas : MonoBehaviour
 			
 			// PUT MARKER IN SCENE
 			GameObject newGameObject = Instantiate(Resources.Load("_Editor/Position Markers/Position Marker", typeof(GameObject)), position, Quaternion.identity, slbParent.transform) as GameObject;
-			
 			newGameObject.name = identifier + " " + flags;
+			newGameObject.AddComponent<PositionSnapper>();
 		}
 		// SHRUUUUG
 		binaryReader.Close();
