@@ -32,7 +32,7 @@ public class PositionSnapper : MonoBehaviour
 		RaycastHit hit;
 		if (Physics.Raycast(transform.position + new Vector3(0.0f, 2.5f, 0.0f), Vector3.down, out hit, distanceToSnap + 2.5f))
 		{
-			Vector3 newPosition = transform.localPosition + (Vector3.down * hit.distance) + new Vector3(0.0f, 1.5f, 0.0f);
+			Vector3 newPosition = transform.localPosition + new Vector3(0.0f, 4.0f - hit.distance, 0.0f); // 4.0f = 2.5f to counteract the shenanigans earlier + 1.5f for the actual boost upwards
 			float distanceSnapped = newPosition.y - transform.localPosition.y;
 			transform.localPosition = newPosition;
 			Debug.Log("Snapped " + gameObject.name + ", distance moved: " + distanceSnapped);
