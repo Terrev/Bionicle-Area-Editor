@@ -66,5 +66,6 @@ public class PositionSnapper : MonoBehaviour
 			return;
 		}
 		transform.localPosition = loadedPosition;
+		Debug.Log("Reverted " + gameObject.name);
 	}
 }
