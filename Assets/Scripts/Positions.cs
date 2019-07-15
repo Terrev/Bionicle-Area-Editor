@@ -8,17 +8,19 @@ public class Positions : MonoBehaviour
 	
 	public void SnapAllPickups()
 	{
+		Debug.Log("================= SNAPPING ALL PICKUPS =================");
 		foreach (Transform position in transform)
 		{
 			position.gameObject.GetComponent<PositionSnapper>().SnapDownwards(snapDistance, false);
 		}
+		Debug.Log("================= DONE SNAPPING ALL PICKUPS =================");
 	}
 	
 	public void RevertAllPickups()
 	{
 		foreach (Transform position in transform)
 		{
-			position.gameObject.GetComponent<PositionSnapper>().RevertToLoadedPosition();
+			position.gameObject.GetComponent<PositionSnapper>().RevertToLoadedPosition(false);
 		}
 	}
 }

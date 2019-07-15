@@ -16,9 +16,10 @@ public class PositionSnapperEditor : Editor
 			positionSnapper.SnapDownwards(positionSnapper.snapDistance, true);
 		}
 		GUILayout.Space(10);
+		GUILayout.Label("Loaded position:\n" + positionSnapper.loadedPosition.x + "\n" + positionSnapper.loadedPosition.y + "\n" + positionSnapper.loadedPosition.z);
 		if (GUILayout.Button("Revert to loaded position"))
 		{
-			positionSnapper.RevertToLoadedPosition();
+			positionSnapper.RevertToLoadedPosition(true);
 		}
 	}
 }
