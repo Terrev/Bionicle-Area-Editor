@@ -4,9 +4,10 @@
 
 - Copy the contents of \data\levels into the corresponding folder within the project's Resources folder (can copy the game's files as-is, then click and drag all of a level's BLKs onto the extractor script, then delete the BLKs... or whatever works for you)
 - Same goes for \data\characters if you'd like
-- To prep an area for loading, select all the x's and drag them onto LOMNTool to convert them to .dae
+- To prep an area for loading, select all the Xs and drag them onto LOMNTool to convert them to .dae
+- To make sure the models can link to the textures correctly, make sure the folder with the textures (lev#) is imported/processed before converting the Xs to dae
 
-The results should look like this (the x's can then be deleted if you want to save space - they're the files that aren't the ones with the blue cube icons):
+The results should look like this (the Xs can then be deleted if you want to save space - they're the files that aren't the ones with the blue cube icons):
 
 ![](https://i.imgur.com/pbJGte4.png)
 
