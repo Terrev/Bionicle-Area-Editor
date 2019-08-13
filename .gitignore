@@ -11,6 +11,8 @@ Assets/Resources/beta/characters/*
 Assets/Resources/beta/levels/*
 Assets/Resources/rebuilt/characters/*
 Assets/Resources/rebuilt/levels/*
+Assets/Resources/vanilla/characters/*
+Assets/Resources/vanilla/levels/*
 !placeholder.txt
 !placeholder.txt.meta
 
