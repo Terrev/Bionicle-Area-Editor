@@ -1,4 +1,4 @@
-# Bionicle-Area-Editor
+# Bionicle Area Editor
 
 ### SETUP
 
