@@ -1,31 +1,73 @@
-﻿Shader "Vertex Colors" {
-Properties {
-    _Color ("Main Color", Color) = (1,1,1,1)
-    _SpecColor ("Spec Color", Color) = (1,1,1,1)
-    _Emission ("Emmisive Color", Color) = (0,0,0,0)
-    _Shininess ("Shininess", Range (0.01, 1)) = 0.7
-    _MainTex ("Base (RGB)", 2D) = "white" {}
-}
- 
-SubShader {
-    Pass {
-        Material {
-            Shininess [_Shininess]
-            Specular [_SpecColor]
-            Emission [_Emission]    
-        }
-        ColorMaterial AmbientAndDiffuse
-        Lighting On
-        SeparateSpecular On
-        SetTexture [_MainTex] {
-            Combine texture * primary, texture * primary
-        }
-        SetTexture [_MainTex] {
-            constantColor [_Color]
-            Combine previous * constant DOUBLE, previous * constant
-        } 
+﻿Shader "Vertex Colors"
+{
+    Properties
+    {
+        _MainTex ("Texture", 2D) = "white" {}
     }
-}
- 
-Fallback " VertexLit", 1
+    SubShader
+    {
+        Tags { "RenderType"="Opaque" }
+        LOD 100
+
+        Pass
+        {
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            // make fog work
+            #pragma multi_compile_fog
+			
+			#pragma multi_compile TEXTURES_AND_VERTEX_COLORS TEXTURES_ONLY VERTEX_COLORS_ONLY NIGHT_VISION
+
+            #include "UnityCG.cginc"
+
+            struct appdata
+            {
+                float4 vertex : POSITION;
+                float2 uv : TEXCOORD0;
+				float4 color : COLOR;
+            };
+
+            struct v2f
+            {
+                float2 uv : TEXCOORD0;
+				float4 color : COLOR;
+                UNITY_FOG_COORDS(1)
+                float4 vertex : SV_POSITION;
+            };
+
+            sampler2D _MainTex;
+            float4 _MainTex_ST;
+
+            v2f vert (appdata v)
+            {
+                v2f o;
+                o.vertex = UnityObjectToClipPos(v.vertex);
+                o.uv = TRANSFORM_TEX(v.uv, _MainTex);
+				#if defined (NIGHT_VISION)
+					o.color = float4(0.0, 0.5, 0.0, 0.0);
+				#else
+					o.color = v.color;
+				#endif
+                UNITY_TRANSFER_FOG(o,o.vertex);
+                return o;
+            }
+
+            fixed4 frag (v2f i) : SV_Target
+            {
+                // sample the texture
+				#if defined (TEXTURES_ONLY)
+					fixed4 col = tex2D(_MainTex, i.uv);
+				#elif defined (VERTEX_COLORS_ONLY)
+					fixed4 col = i.color;
+				#else
+					fixed4 col = tex2D(_MainTex, i.uv) * i.color;
+				#endif
+                // apply fog
+                UNITY_APPLY_FOG(i.fogCoord, col);
+                return col;
+            }
+            ENDCG
+        }
+    }
 }

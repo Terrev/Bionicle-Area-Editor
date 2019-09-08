@@ -29,7 +29,47 @@ public class Areas : MonoBehaviour
 	
 	
 	///////////////////////////////////////////////////////////////////
-	#region TEST
+	#region TEST / MISC
+	
+	[MenuItem("Shading/Textures And Vertex Colors &w")]
+	public static void TexturesAndVertexColors()
+	{
+		Shader.EnableKeyword("TEXTURES_AND_VERTEX_COLORS");
+		Shader.DisableKeyword("TEXTURES_ONLY");
+		Shader.DisableKeyword("VERTEX_COLORS_ONLY");
+		Shader.DisableKeyword("NIGHT_VISION");
+		SceneView.RepaintAll();
+	}
+	
+	[MenuItem("Shading/Textures Only &a")]
+	public static void TexturesOnly()
+	{
+		Shader.DisableKeyword("TEXTURES_AND_VERTEX_COLORS");
+		Shader.EnableKeyword("TEXTURES_ONLY");
+		Shader.DisableKeyword("VERTEX_COLORS_ONLY");
+		Shader.DisableKeyword("NIGHT_VISION");
+		SceneView.RepaintAll();
+	}
+	
+	[MenuItem("Shading/Vertex Colors Only &s")]
+	public static void VertexColorsOnly()
+	{
+		Shader.DisableKeyword("TEXTURES_AND_VERTEX_COLORS");
+		Shader.DisableKeyword("TEXTURES_ONLY");
+		Shader.EnableKeyword("VERTEX_COLORS_ONLY");
+		Shader.DisableKeyword("NIGHT_VISION");
+		SceneView.RepaintAll();
+	}	
+	
+	[MenuItem("Shading/Night Vision &d")]
+	public static void NightVision()
+	{
+		Shader.DisableKeyword("TEXTURES_AND_VERTEX_COLORS");
+		Shader.DisableKeyword("TEXTURES_ONLY");
+		Shader.DisableKeyword("VERTEX_COLORS_ONLY");
+		Shader.EnableKeyword("NIGHT_VISION");
+		SceneView.RepaintAll();
+	}
 	
 	public void LoadEntireGame()
 	{
@@ -79,6 +119,9 @@ public class Areas : MonoBehaviour
 	
 	public void LoadObjSlb()
 	{
+		// use this later
+		Shader shader = Shader.Find("Vertex Colors");
+		
 		// PREPARE FOR FILE READING
 		string path = Application.dataPath + "/Resources/" + gameVersion + "/levels/" + levelName + "/" + areaName + "/" + areaName + "_OBJ.slb";
 		if (!File.Exists(path))
@@ -162,6 +205,12 @@ public class Areas : MonoBehaviour
 				blah2.transform.parent = collisionPointParent.transform;
 				blah2.transform.localPosition = collisionPoint2;
 				blah2.transform.localRotation = Quaternion.identity;
+			}
+			// SET SHADERS
+			MeshRenderer meshRenderer = newGameObject.GetComponent<MeshRenderer>();
+			for (int j = 0; j < meshRenderer.sharedMaterials.Length; j++)
+			{
+				meshRenderer.sharedMaterials[j].shader = shader;
 			}
 		}
 		// SHRUG
@@ -1444,6 +1493,9 @@ public class Areas : MonoBehaviour
 	
 	public void LoadHiveSlb()
 	{
+		// use this later
+		Shader shader = Shader.Find("Vertex Colors");
+		
 		// PREPARE FOR FILE READING
 		string path = Application.dataPath + "/Resources/" + gameVersion + "/levels/" + levelName + "/" + areaName + "/" + areaName + "_HIVE.slb";
 		if (!File.Exists(path))
@@ -1530,6 +1582,13 @@ public class Areas : MonoBehaviour
 			blah2.transform.parent = collisionPointParent.transform;
 			blah2.transform.localPosition = collisionPoint2;
 			blah2.transform.localRotation = Quaternion.identity;
+			
+			// SET SHADERS
+			MeshRenderer meshRenderer = newGameObject.GetComponent<MeshRenderer>();
+			for (int j = 0; j < meshRenderer.sharedMaterials.Length; j++)
+			{
+				meshRenderer.sharedMaterials[j].shader = shader;
+			}
 		}
 		// SHRUUUUG
 		binaryReader.Close();
