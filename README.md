@@ -2,7 +2,7 @@
 
 ### SETUP
 
-- Copy the contents of \data\levels into the corresponding folder within the project's Resources folder (can copy the game's files as-is, then click and drag all of a level's BLKs onto the extractor script, then delete the BLKs... or whatever works for you)
+- Copy the contents of \data\levels into the corresponding folder within the project's Resources folder (can copy the game's files as-is, then click and drag all of a level's BLKs onto the extractor script, then delete the BLKs... or copy right from the blockfiles folder in the main repo... or whatever works for you)
 - Same goes for \data\characters if you'd like
 - To prep an area for loading, select all the Xs and drag them onto LOMNTool to convert them to .dae
 - To make sure the models can link to the textures correctly, make sure the folder with the textures (lev#) is imported/processed before converting the Xs to dae
@@ -16,6 +16,10 @@ Then, in Scene.unity, click on the Manager object, and you can do things:
 ![](https://i.imgur.com/uOCWF95.png)
 
 ![](https://i.imgur.com/ZIsZ5Tq.png)
+
+You can also change the shading mode to make it easier to work in dark areas or place realtime lights/shadows that match the baked lighting, or just to see how the area would look with the in-game night vision effect:
+
+![](https://i.imgur.com/PMxJ438.gif)
 
 ### MISC TIPS
 I'm assuming people using this may not have used Unity much or at all before. I do assume the user has general familiarity with the game itself (and its quirks) though.
