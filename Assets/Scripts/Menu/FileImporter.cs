@@ -68,20 +68,19 @@ namespace LOMN.Menu
 
         void ImportFiles()
         {
-            string versionName = version.ToString().ToLower();
-            string baseTargetPath = Path.Combine(Application.dataPath, "Resources", versionName);
+            string baseTargetPath = Path.Combine(Application.dataPath, "Resources", version.ToString().ToLower());
             string sourceCharacterPath = Path.Combine(sourcePath, charactersFolder);
             string sourceLevelsPath = Path.Combine(sourcePath, levelsFolder);
 
             List<string> files = GetFiles(sourceCharacterPath);
             files.AddRange(GetFiles(sourceLevelsPath));
-            var progressBar = new ProgressBar(files.Count, versionName + "'s files import", "Start");
+            var progressBar = new ProgressBar(files.Count, version + "'s files import", "Start");
 
             CopyFolder(sourceCharacterPath, Path.Combine(baseTargetPath, charactersFolder), progressBar);
             CopyFolder(sourceLevelsPath, Path.Combine(baseTargetPath, levelsFolder), progressBar);
 
             progressBar.Hide();
-            Debug.Log(versionName + "'s files is imported");
+            Debug.Log(version + "'s files is imported");
         }
 
         void CopyFolder(string sourcePath, string targetPath, ProgressBar progressBar)
@@ -106,13 +105,12 @@ namespace LOMN.Menu
 
         void ConvertBlkFiles()
         {
-            string versionName = version.ToString().ToLower();
-            string baseTargetPath = Path.Combine(Application.dataPath, "Resources", versionName);
+            string baseTargetPath = Path.Combine(Application.dataPath, "Resources", version.ToString().ToLower());
 
             List<string> files = GetFiles(Path.Combine(baseTargetPath, charactersFolder),"*.blk");
             files.AddRange(GetFiles(Path.Combine(baseTargetPath, levelsFolder), "*.blk"));
 
-            var progressBar = new ProgressBar(files.Count, versionName + "'s blk files convert.", "Start");
+            var progressBar = new ProgressBar(files.Count, version + "'s blk files convert.", "Start");
 
             var process = new System.Diagnostics.Process();
             System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
@@ -133,18 +131,17 @@ namespace LOMN.Menu
             }
 
             progressBar.Hide();
-            Debug.Log(versionName + "'s blk files is converted.");
+            Debug.Log(version + "'s blk files is converted.");
         }
 
         void ConvertXFiles()
         {
-            string versionName = version.ToString().ToLower();
-            string baseTargetPath = Path.Combine(Application.dataPath, "Resources", versionName);
+            string baseTargetPath = Path.Combine(Application.dataPath, "Resources", version.ToString().ToLower());
 
             List<string> files = GetFiles(Path.Combine(baseTargetPath, charactersFolder), "*.x");
             files.AddRange(GetFiles(Path.Combine(baseTargetPath, levelsFolder), "*.x"));
 
-            var progressBar = new ProgressBar(files.Count, versionName + "'s x files concert.", "Start");
+            var progressBar = new ProgressBar(files.Count, version + "'s x files concert.", "Start");
 
             var process = new System.Diagnostics.Process();
             System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
@@ -165,13 +162,12 @@ namespace LOMN.Menu
             }
 
             progressBar.Hide();
-            Debug.Log(versionName + "'s x files is converted.");
+            Debug.Log(version + "'s x files is converted.");
         }
 
         bool IsVersionEmpty()
         {
-            string versionName = version.ToString().ToLower();
-            string baseTargetPath = Path.Combine(Application.dataPath, "Resources", versionName);
+            string baseTargetPath = Path.Combine(Application.dataPath, "Resources", version.ToString().ToLower());
             string targetCharacterPath = Path.Combine(baseTargetPath, charactersFolder);
             string targetLevelsPath = Path.Combine(baseTargetPath, levelsFolder);
 
@@ -181,7 +177,7 @@ namespace LOMN.Menu
 
             if(!deleteOldFiles && folders.Count > 0)
             {
-                Debug.LogError(versionName + " has folders.");
+                Debug.LogError(version + " has folders.");
                 return false;
             }
 
@@ -196,14 +192,14 @@ namespace LOMN.Menu
 
             if(!deleteOldFiles && files.Count > 0)
             {
-                Debug.LogError(versionName + " has files.");
+                Debug.LogError(version + " has files.");
                 return false;
             }
 
 
             if (deleteOldFiles)
             {
-                var progressBar = new ProgressBar(folders.Count + files.Count, versionName + "'s files delete", "Start");
+                var progressBar = new ProgressBar(folders.Count + files.Count, version + "'s files delete", "Start");
 
                 foreach (var folder in folders)
                 {
@@ -222,7 +218,7 @@ namespace LOMN.Menu
                 }
 
                 progressBar.Hide();
-                Debug.Log(versionName + "'s files is deleted");
+                Debug.Log(version + "'s files is deleted");
             }
 
             return true;
@@ -230,17 +226,15 @@ namespace LOMN.Menu
 
         bool IsGamePathReady()
         {
-            string versionName = version.ToString().ToLower();
-
             if (String.IsNullOrEmpty(sourcePath))
             {
-                Debug.LogWarning(versionName + " path is empty, that's why it will be skiped.");
+                Debug.LogWarning(version + " path is empty, that's why it will be skiped.");
                 return false;
             }
 
             if (!Directory.Exists(sourcePath))
             {
-                Debug.LogError(versionName + " directory doesn't exist.");
+                Debug.LogError(version + " directory doesn't exist.");
                 return false;
             }
 
@@ -264,7 +258,7 @@ namespace LOMN.Menu
 
             if (!foundCharacters || !foundLevels)
             {
-                Debug.LogError(versionName + " directory hasn't characters and levels folders.");
+                Debug.LogError(version + " directory hasn't characters and levels folders.");
                 return false;
             }
 
