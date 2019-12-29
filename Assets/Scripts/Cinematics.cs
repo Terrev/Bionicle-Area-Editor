@@ -258,4 +258,61 @@ public class Cinematics : MonoBehaviour
 	#endregion
 	///////////////////////////////////////////////////////////////////
 	
+	
+	///////////////////////////////////////////////////////////////////
+	#region CIN_CAM
+	
+	public void LoadCinCamSlb()
+	{
+		// PREPARE FOR FILE READING
+		string path = Application.dataPath + "/Resources/" + gameVersion + "/levels/" + levelName + "/" + levelName + "/" + cinematicName + "_CAM.slb";
+		if (gameVersion.Equals("alpha", StringComparison.OrdinalIgnoreCase))
+		{
+			path = Application.dataPath + "/Resources/" + gameVersion + "/cinematics/" + levelName + "/" + cinematicName + "_CHAR.slb";
+		}
+		if (!File.Exists(path))
+		{
+			Debug.LogError("File not found: " + path);
+			return;
+		}
+		FileStream fileStream = new FileStream(path, FileMode.Open);
+		BinaryReader binaryReader = new BinaryReader(fileStream);
+		
+		// MAKE SLB PARENT GAMEOBJECT
+		// doing this after opening the file so we don't just get an empty gameobject if we entered an invalid name or something
+		GameObject slbParent = new GameObject(cinematicName + "_CAM.slb");
+		CinCam cinCam = slbParent.AddComponent<CinCam>() as CinCam;
+		
+		// READ
+		cinCam.viewAngle = binaryReader.ReadSingle();
+		cinCam.spinMask1 = binaryReader.ReadSingle();
+		cinCam.spinMask2 = binaryReader.ReadSingle();
+		cinCam.spinMask3 = binaryReader.ReadSingle();
+		UInt32 entryCount = binaryReader.ReadUInt32();
+		UInt32 tableOffset = binaryReader.ReadUInt32();
+		
+		// GO TO BEGINNING OF TABLE
+		fileStream.Seek(tableOffset, SeekOrigin.Begin);
+		
+		cinCam.frames = new CinCamFrame[entryCount];
+		// LOOP THROUGH ENTRIES
+		for (int i = 0; i < entryCount; i++)
+		{
+			// FRAMES
+			CinCamFrame frame = new CinCamFrame();
+			frame.time = binaryReader.ReadSingle();
+			frame.position = new Vector3(-binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
+			frame.target = new Vector3(-binaryReader.ReadSingle(), binaryReader.ReadSingle(), binaryReader.ReadSingle());
+			cinCam.frames[i] = frame;
+		}
+		// SHRUG
+		// some stackoverflow post said closing the reader SHOULD close the stream but I don't trust "should" enough lol
+		binaryReader.Close();
+		fileStream.Close();
+		Debug.Log("Loaded " + path);
+	}
+	
+	#endregion
+	///////////////////////////////////////////////////////////////////
+	
 }

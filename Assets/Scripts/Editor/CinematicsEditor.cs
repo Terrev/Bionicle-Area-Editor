@@ -14,7 +14,11 @@ public class CinematicsEditor : Editor
 		{
 			cinematics.LoadCinCharSlb();
 		}
-		//GUILayout.Space(10);
+		if (GUILayout.Button("Load Cinematic Camera SLB"))
+		{
+			cinematics.LoadCinCamSlb();
+		}
+		GUILayout.Space(10);
 		if (GUILayout.Button("Save Cinematic Characters SLB"))
 		{
 			cinematics.SaveCinCharSlb();

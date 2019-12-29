@@ -104,7 +104,7 @@ public class Areas : MonoBehaviour
 			areaName = areas[i].Substring(areas[i].Length - 4);
 			if (areaName != levelName && areaName != "ures") // textures folder lol
 			{
-				LoadCamSlb();
+				LoadObjSlb();
 			}
 		}
 	}

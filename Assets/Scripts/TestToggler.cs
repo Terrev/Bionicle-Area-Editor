@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 
 public class TestToggler : MonoBehaviour
 {
@@ -10,7 +11,13 @@ public class TestToggler : MonoBehaviour
 	public GameObject gameObject1;
 	public GameObject gameObject2;
 	
-	bool blah;
+	public static bool blah;
+	
+	[MenuItem("Editor/Toggle Object _F1")]
+	public static void ToggleObject()
+	{
+		blah = !blah;
+	}
 	
 	void OnDrawGizmos()
 	{
@@ -18,7 +25,6 @@ public class TestToggler : MonoBehaviour
 		{
 			gameObject1.SetActive(blah);
 			gameObject2.SetActive(!blah);
-			blah = !blah;
 		}
 	}
 }
