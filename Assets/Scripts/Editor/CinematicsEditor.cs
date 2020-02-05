@@ -14,7 +14,7 @@ public class CinematicsEditor : Editor
 		{
 			cinematics.LoadCinCharSlb();
 		}
-		if (GUILayout.Button("Load Cinematic Camera SLB"))
+		if (GUILayout.Button("Load Cinematic Camera SLB (WIP)"))
 		{
 			cinematics.LoadCinCamSlb();
 		}

@@ -13,7 +13,7 @@ public class TestToggler : MonoBehaviour
 	
 	public static bool blah;
 	
-	[MenuItem("Editor/Toggle Object _F1")]
+	//[MenuItem("Editor/Toggle Object _F1")]
 	public static void ToggleObject()
 	{
 		blah = !blah;
