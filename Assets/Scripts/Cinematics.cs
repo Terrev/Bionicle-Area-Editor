@@ -179,7 +179,14 @@ public class Cinematics : MonoBehaviour
 			binaryWriter.Write(Utilities.StringToCharArray(cinCharacters[i].characterName));
 			
 			// ANIM BAKED
-			binaryWriter.Write(Utilities.StringToCharArray(cinCharacters[i].animBaked));
+			if (String.IsNullOrEmpty(cinCharacters[i].animBaked))
+			{
+				binaryWriter.Write(new byte[4]);
+			}
+			else
+			{
+				binaryWriter.Write(Utilities.StringToCharArray(cinCharacters[i].animBaked));
+			}
 			
 			// MASK SWITCH TIMES
 			binaryWriter.Write(cinCharacters[i].maskSwitchTime1);
