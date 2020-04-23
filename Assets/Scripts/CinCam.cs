@@ -13,6 +13,8 @@ public class CinCamFrame
 
 public class CinCam : MonoBehaviour
 {
+	public int selectedFrame = 0;
+	public CinCamFrame currentFrame;
 	public float viewAngle;
 	public float spinMask1;
 	public float spinMask2;
@@ -23,6 +25,16 @@ public class CinCam : MonoBehaviour
 	
 	void OnDrawGizmos()
 	{
+		if (selectedFrame < 0)
+		{
+			selectedFrame = 0;
+		}
+		if (selectedFrame > frames.Length - 1)
+		{
+			selectedFrame = frames.Length - 1;
+		}
+		currentFrame = frames[selectedFrame];
+
 		Gizmos.color = Color.cyan;
 		for (int i = 0; i < frames.Length; i++)
 		{
@@ -32,8 +44,8 @@ public class CinCam : MonoBehaviour
 				//ToggleColor();
 			}
 		}
-		
-		/*
+		Gizmos.DrawWireSphere(frames[selectedFrame].position, 2.0f);
+
 		Gizmos.color = Color.yellow;
 		for (int i = 0; i < frames.Length; i++)
 		{
@@ -42,7 +54,8 @@ public class CinCam : MonoBehaviour
 				Gizmos.DrawLine(frames[i].target, frames[i + 1].target);
 			}
 		}
-		*/
+		Gizmos.DrawWireSphere(frames[selectedFrame].target, 2.0f);
+
 	}
 	
 	void ToggleColor()
