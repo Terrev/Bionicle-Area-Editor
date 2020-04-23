@@ -275,7 +275,7 @@ public class Cinematics : MonoBehaviour
 		string path = Application.dataPath + "/Resources/" + gameVersion + "/levels/" + levelName + "/" + levelName + "/" + cinematicName + "_CAM.slb";
 		if (gameVersion.Equals("alpha", StringComparison.OrdinalIgnoreCase))
 		{
-			path = Application.dataPath + "/Resources/" + gameVersion + "/cinematics/" + levelName + "/" + cinematicName + "_CHAR.slb";
+			path = Application.dataPath + "/Resources/" + gameVersion + "/cinematics/" + levelName + "/" + cinematicName + "_CAM.slb";
 		}
 		if (!File.Exists(path))
 		{
