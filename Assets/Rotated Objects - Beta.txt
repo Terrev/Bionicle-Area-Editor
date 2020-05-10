@@ -1,5 +1,3 @@
-beta only, haven't tested alpha
-
 lev1\atrm	hot0	0				0				-24.5			    z
 lev1\cave	dg05	0				89				0				  y  
 lev1\cave	dg10	0				170				0				  y  

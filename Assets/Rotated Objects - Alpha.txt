@@ -1,0 +1,79 @@
+Lev1\Bech\Bech_obj.slb		sign	0				-25				0				  y  
+Lev1\Bech\Bech_obj.slb		sign	0				110				0				  y  
+Lev1\Hk01\Hk01_obj.slb		hot7	0				57.5			0				  y  
+Lev1\L1a1\L1a1_obj.slb		hot2	0				-12				0				  y  
+Lev1\L1a1\L1a1_obj.slb		sign	0				-29.5			0				  y  
+Lev1\L1a7\L1a7_obj.slb		hkt1	1.86385			68.1435			-8.80644		x y z
+Lev1\Shrn\Shrn_obj.slb		mmdr	0				-4				0				  y  
+Lev1\Tmbl\Tmbl_obj.slb		sign	0				-145			0				  y  
+Lev2\Bmtn\Bmtn_obj.slb		main	0				1.5				0				  y  
+Lev2\Gizr\Gizr_obj.slb		main	0				0.854472		-3.73502E-08	  y z
+Lev2\Gizr\Gizr_obj.slb		gid1	0				0.854472		-3.73502E-08	  y z
+Lev2\Gl4s\Gl4s_obj.slb		g4d6	0				0.854472		-3.73502E-08	  y z
+Lev2\Gl4s\Gl4s_obj.slb		main	0				0.854472		-3.73502E-08	  y z
+Lev2\Gly4\Gly4_obj.slb		main	0				0.854472		-3.73502E-08	  y z
+Lev2\Gly4\Gly4_obj.slb		g4d5	0				0.854472		-3.73502E-08	  y z
+Lev2\Isld\Isld_obj.slb		main	0				1				0				  y  
+Lev2\Shrn\Shrn\Shrn_obj.slb	main	0				-0.5			0				  y  
+Lev3\Bkik\Bkik_obj.slb		bld1	89.9802			0				0				x    
+Lev3\Bkik\Bkik_obj.slb		bld2	89.9802			0				0				x    
+Lev3\Bkik\Bkik_obj.slb		bld3	89.9802			0				0				x    
+Lev3\Bkik\Bkik_obj.slb		bld4	89.9802			0				0				x    
+Lev3\Bkik\Bkik_obj.slb		bld5	89.9802			0				0				x    
+Lev3\Blr4\Blr4_obj.slb		pi21	0				-37.5			0				  y  
+Lev3\Blr4\Blr4_obj.slb		pi22	0				-37.5			0				  y  
+Lev3\Blr4\Blr4_obj.slb		pi23	0				-37.5			0				  y  
+Lev3\Blr4\Blr4_obj.slb		pi24	0				-37.5			0				  y  
+Lev3\Blr5\Blr5_obj.slb		pi01	0				45				0				  y  
+Lev3\Blr5\Blr5_obj.slb		pi02	0				45				0				  y  
+Lev3\Blr5\Blr5_obj.slb		pi03	0				45				0				  y  
+Lev3\Blr5\Blr5_obj.slb		pi04	0				45				0				  y  
+Lev3\Blr5\Blr5_obj.slb		pi05	0				45				0				  y  
+Lev3\Blr5\Blr5_obj.slb		pi06	0				45				0				  y  
+Lev3\Blr5\Blr5_obj.slb		pi07	0				45				0				  y  
+Lev3\Blr5\Blr5_obj.slb		pi08	0				45				0				  y  
+Lev3\Blr5\Blr5_obj.slb		pi09	0				45				0				  y  
+Lev3\Blr5\Blr5_obj.slb		pi10	0				45				0				  y  
+Lev3\Blr5\Blr5_obj.slb		pi11	0				45				0				  y  
+Lev3\Blr5\Blr5_obj.slb		pi12	0				45				0				  y  
+Lev3\Blr5\Blr5_obj.slb		pi13	0				45				0				  y  
+Lev3\Blr5\Blr5_obj.slb		pi14	0				45				0				  y  
+Lev3\Boss\Boss_obj.slb		lbld	0				-90				90				  y z
+Lev4\Visn\Visn_obj.slb		mskv	0				133				0				  y  
+Lev5\Le04\Le04_obj.slb		tspd	0				30				0				  y  
+Lev5\Vllg\Vllg_obj.slb		dsc5	0				-0.816642		3.56965E-08		  y z
+Lev7\Kpka\Kpka_obj.slb		tg05	0				-42				0				  y  
+Lev7\Kpka\Kpka_obj.slb		tg05	0				130.5			0				  y  
+Lev7\Kpka\Kpka_obj.slb		tg05	0				141.5			0				  y  
+Lev7\Onua\Onua_obj.slb		hk02	0				16				0				  y  
+Lev7\Onua\Onua_obj.slb		hk03	0				9				0				  y  
+Lev7\Pst1\Pst1_obj.slb		bp00	22.5			-90				-90				x y z
+Lev7\Pst1\Pst1_obj.slb		bp00	52.5			-90				-90				x y z
+Lev7\Pst1\Pst1_obj.slb		bp00	52.5			90				90				x y z
+Lev7\Pst1\Pst1_obj.slb		bp00	22.5			90				90				x y z
+Lev7\Pst1\Pst1_obj.slb		sp00	0				-11.22			0				  y  
+Lev7\Pst1\Pst1_obj.slb		sp00	0				-8.21			0				  y  
+Lev7\Pst1\Pst1_obj.slb		sp00	0				180				-180			  y z
+Lev7\Pst1\Pst1_obj.slb		sp00	0				11.3			0				  y  
+Lev7\Pst1\Pst1_obj.slb		pf00	0				-44.5			0				  y  
+Lev7\Pst1\Pst1_obj.slb		pf00	0				-60.5			0				  y  
+Lev7\Pst1\Pst1_obj.slb		pf00	0				-90				0				  y  
+Lev7\Pst1\Pst1_obj.slb		pf00	0				-90				0				  y  
+Lev7\Pst2\Pst2_obj.slb		bp00	0				36				0				  y  
+Lev7\Pst2\Pst2_obj.slb		bp00	0				108				0				  y  
+Lev7\Pst2\Pst2_obj.slb		bp00	0				72				0				  y  
+Lev7\Pst2\Pst2_obj.slb		bp00	0				108				0				  y  
+Lev7\Pst2\Pst2_obj.slb		bp00	0				36				0				  y  
+Lev7\Pst2\Pst2_obj.slb		bp00	0				-36				0				  y  
+Lev7\Pst2\Pst2_obj.slb		ld00	89.9802			0				0				x    
+Lev7\Pst2\Pst2_obj.slb		ld00	89.9802			0				0				x    
+Lev7\Pst2\Pst2_obj.slb		ld00	89.9802			0				0				x    
+Lev7\Pst2\Pst2_obj.slb		ld00	89.9802			0				0				x    
+Lev7\Pst2\Pst2_obj.slb		ld00	89.9802			0				0				x    
+Lev7\Pst2\Pst2_obj.slb		ld00	89.9802			0				0				x    
+Lev7\Pst2\Pst2_obj.slb		rd01	89.972			0				0				x    
+Lev7\Pst2\Pst2_obj.slb		rd01	89.972			0				0				x    
+Lev7\Pst2\Pst2_obj.slb		rd01	89.972			0				0				x    
+Lev7\Pst2\Pst2_obj.slb		rd01	89.972			0				0				x    
+Lev7\Pst2\Pst2_obj.slb		rd01	89.972			0				0				x    
+Lev7\Pst2\Pst2_obj.slb		rd01	89.972			0				0				x    

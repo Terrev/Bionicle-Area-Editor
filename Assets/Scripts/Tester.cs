@@ -10,14 +10,14 @@ public class Tester : MonoBehaviour
 	
 	void Awake()
 	{
-		LightTest();
+		ObjTest();
 	}
 	
 	void ObjTest()
 	{
 		List<string> stringsToWrite = new List<string>();
 		
-		string[] paths = Directory.GetFiles(Application.dataPath + "/Resources", "*_OBJ.slb", SearchOption.AllDirectories);
+		string[] paths = Directory.GetFiles(Application.dataPath + "/Resources/alpha/levels", "*_OBJ.slb", SearchOption.AllDirectories);
 		/*
 		for (int i = 0; i < paths.Length; i++)
 		{
@@ -113,7 +113,7 @@ public class Tester : MonoBehaviour
 					}
 					
 					// whatever
-					string blah = path.Substring(40, 9) + "	" + identifier + "	" + orientation.x + "				" + orientation.y + "				" + orientation.z + "				" + x + " " + y + " " + z;
+					string blah = path + "	" + identifier + "	" + orientation.x + "				" + orientation.y + "				" + orientation.z + "				" + x + " " + y + " " + z;
 					Debug.Log(blah);
 					stringsToWrite.Add(blah);
 				}
