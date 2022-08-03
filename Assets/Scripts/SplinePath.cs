@@ -21,14 +21,57 @@ public class SplinePath : MonoBehaviour
 	
 	void OnDrawGizmos()
 	{
-		Gizmos.color = Color.cyan;
 		for (int i = 0; i < transform.childCount; i++)
 		{
 			if (i != transform.childCount - 1)
 			{
 				Transform currentPoint = transform.GetChild(i);
 				Transform nextPoint = transform.GetChild(i + 1);
+				Gizmos.color = Color.cyan;
 				Gizmos.DrawLine(currentPoint.position, nextPoint.position);
+
+				if (Selection.Contains(gameObject))
+				{
+					// lol
+
+					Gizmos.color = Color.magenta;
+					Gizmos.DrawWireSphere(currentPoint.position, 2.0f);
+					Gizmos.DrawWireSphere(currentPoint.position, 2.0f);
+					Gizmos.DrawWireSphere(currentPoint.position, 2.0f);
+					Gizmos.DrawWireSphere(currentPoint.position, 2.0f);
+					Gizmos.DrawWireSphere(currentPoint.position, 2.0f);
+					Gizmos.DrawWireSphere(currentPoint.position, 2.0f);
+
+					Vector3 currentPointRaised = currentPoint.position + (Vector3.up * (Vector3.Distance(currentPoint.position, SceneView.lastActiveSceneView.camera.transform.position)) * 0.005f);
+					Vector3 nextPointRaised = nextPoint.position + (Vector3.up * (Vector3.Distance(nextPoint.position, SceneView.lastActiveSceneView.camera.transform.position)) * 0.005f);
+					Gizmos.DrawLine(currentPointRaised, nextPointRaised);
+					Gizmos.DrawLine(currentPointRaised, nextPointRaised);
+					Gizmos.DrawLine(currentPointRaised, nextPointRaised);
+					Gizmos.DrawLine(currentPointRaised, nextPointRaised);
+					Gizmos.DrawLine(currentPointRaised, nextPointRaised);
+					Gizmos.DrawLine(currentPointRaised, nextPointRaised);
+
+					if (i == 0)
+					{
+						Gizmos.color = Color.green;
+						Gizmos.DrawWireSphere(currentPoint.position, 5.0f);
+						Gizmos.DrawWireSphere(currentPoint.position, 5.0f);
+						Gizmos.DrawWireSphere(currentPoint.position, 5.0f);
+						Gizmos.DrawWireSphere(currentPoint.position, 5.0f);
+						Gizmos.DrawWireSphere(currentPoint.position, 5.0f);
+						Gizmos.DrawWireSphere(currentPoint.position, 5.0f);
+					}
+					else if (i == transform.childCount - 2)
+					{
+						Gizmos.color = Color.red;
+						Gizmos.DrawWireSphere(nextPoint.position, 5.0f);
+						Gizmos.DrawWireSphere(nextPoint.position, 5.0f);
+						Gizmos.DrawWireSphere(nextPoint.position, 5.0f);
+						Gizmos.DrawWireSphere(nextPoint.position, 5.0f);
+						Gizmos.DrawWireSphere(nextPoint.position, 5.0f);
+						Gizmos.DrawWireSphere(nextPoint.position, 5.0f);
+					}
+				}
 			}
 		}
 	}
